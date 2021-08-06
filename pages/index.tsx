@@ -1,5 +1,6 @@
 import Head from 'next/head'
 import Image from 'next/image'
+import { Button } from '@material-ui/core'
 
 export const Home = (): JSX.Element => (
   <div className="container">
@@ -9,8 +10,19 @@ export const Home = (): JSX.Element => (
     </Head>
 
     <main>
+      <button className="relative flex-none rounded-md border border-gray-200 text-sm font-medium leading-5 py-4 px-10 focus:border-turquoise-500 focus:outline-none focus:shadow-outline hover:bg-gray-50">
+        <span className="absolute inset-0 flex items-center justify-center">
+          Share
+        </span>
+      </button>
+      <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+        Button-1
+      </button>
+      <Button variant="contained" color="primary">
+        Primary
+      </Button>
       <h1 className="title">
-        Welcome to <a href="https://nextjs.org">Next.js!</a>
+        Welcome to <a href="https://nextjs.org">Sample</a>
       </h1>
 
       <p className="description">
