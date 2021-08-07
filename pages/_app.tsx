@@ -1,6 +1,7 @@
 import React from 'react'
 import Head from 'next/head'
 import 'tailwindcss/tailwind.css'
+import '../css/main.css'
 
 export default function App({ Component, pageProps }): JSX.Element {
   return (

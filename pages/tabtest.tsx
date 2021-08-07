@@ -15,26 +15,48 @@ const TabTest: VFC = () => {
   return (
     <>
       <Header />
-      <SplitPane split="vertical" minSize={50} defaultSize="50%">
-        <main className="flex-auto relative border-t border-gray-200">
-          <TabBar
-            activeTab={activeTab}
-            onChange={(tabName: 'tl' | 'format' | 'nameConv' | 'usage') => {
-              setActiveTab(tabName)
-            }}
-          ></TabBar>
-          {activeTab === 'tl' && (
-            <TLInput
-              tl={tl}
-              onChange={(event) => {
-                setTl(event.target.value)
+      <div className="mt-16">
+        <SplitPane
+          split="vertical"
+          defaultSize="50%"
+          style={{ height: 'calc(100% - 4rem)' }}
+        >
+          <main className="flex flex-col h-full border-t border-gray-200">
+            <TabBar
+              activeTab={activeTab}
+              onChange={(tabName: 'tl' | 'format' | 'nameConv' | 'usage') => {
+                setActiveTab(tabName)
               }}
             />
-          )}
-          {activeTab === 'nameConv' && <CharacterNameConverter />}
-        </main>
-        <div className="border-t border-l border-b h-screen">{tl}</div>
-      </SplitPane>
+            {activeTab === 'tl' && (
+              <TLInput
+                tl={tl}
+                onChange={(event) => {
+                  setTl(event.target.value)
+                }}
+              />
+            )}
+            {activeTab === 'nameConv' && <CharacterNameConverter />}
+          </main>
+          <main className="flex flex-col h-full border-t border-gray-200">
+            <TabBar
+              activeTab={activeTab}
+              onChange={(tabName: 'tl' | 'format' | 'nameConv' | 'usage') => {
+                setActiveTab(tabName)
+              }}
+            />
+            {activeTab === 'tl' && (
+              <TLInput
+                tl={tl}
+                onChange={(event) => {
+                  setTl(event.target.value)
+                }}
+              />
+            )}
+            {activeTab === 'nameConv' && <CharacterNameConverter />}
+          </main>
+        </SplitPane>
+      </div>
     </>
   )
 }
