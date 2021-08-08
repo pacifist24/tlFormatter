@@ -12,6 +12,10 @@ const TabTest: VFC = () => {
   >('tl')
   const [tl, setTl] = useState('')
 
+  const [nameFromNameConv, setNameFromNameConv] = useState('')
+
+  const [nameToNameConv, setNameToNameConv] = useState('')
+
   const [characterNameConvs, setCharacterNameConvs] = useState<{
     [key: string]: string
   }>({
@@ -20,12 +24,18 @@ const TabTest: VFC = () => {
     'キャル(サマー)': '水キャル',
   })
 
-  const handleDelete = (nameFrom: string) => {
-    return () => {
-      const clone = { ...characterNameConvs }
-      delete clone[nameFrom]
-      setCharacterNameConvs(clone)
-    }
+  const handleDeleteNameConv = (nameFrom: string) => () => {
+    const clone = { ...characterNameConvs }
+    delete clone[nameFrom]
+    setCharacterNameConvs(clone)
+  }
+
+  const handleAddNameConv = (nameFrom: string, nameTo: string) => () => {
+    const clone = { ...characterNameConvs }
+    clone[nameFrom] = nameTo
+    setCharacterNameConvs(clone)
+    setNameFromNameConv('')
+    setNameToNameConv('')
   }
 
   return (
@@ -55,7 +65,12 @@ const TabTest: VFC = () => {
           {activeTab === 'nameConv' && (
             <CharacterNameConverter
               characterNameConvs={characterNameConvs}
-              handleDelete={handleDelete}
+              handleDelete={handleDeleteNameConv}
+              handleAdd={handleAddNameConv}
+              nameFrom={nameFromNameConv}
+              setNameFrom={setNameFromNameConv}
+              nameTo={nameToNameConv}
+              setNameTo={setNameToNameConv}
             />
           )}
         </main>
