@@ -12,51 +12,57 @@ const TabTest: VFC = () => {
   >('tl')
   const [tl, setTl] = useState('')
 
+  const [characterNameConvs, setCharacterNameConvs] = useState<{
+    [key: string]: string
+  }>({
+    'サレン(サマー)': '水サレ',
+    'ニャル(ニューイヤー)': 'ニャル',
+    'キャル(サマー)': '水キャル',
+  })
+
+  const handleDelete = (nameFrom: string) => {
+    return () => {
+      const clone = { ...characterNameConvs }
+      delete clone[nameFrom]
+      setCharacterNameConvs(clone)
+    }
+  }
+
   return (
     <>
       <Header />
-      <div className="mt-16">
-        <SplitPane
-          split="vertical"
-          defaultSize="50%"
-          style={{ height: 'calc(100% - 4rem)' }}
-        >
-          <main className="flex flex-col h-full border-t border-gray-200">
-            <TabBar
-              activeTab={activeTab}
-              onChange={(tabName: 'tl' | 'format' | 'nameConv' | 'usage') => {
-                setActiveTab(tabName)
+
+      <SplitPane
+        split="vertical"
+        defaultSize="50%"
+        style={{ height: 'calc(100% - 4rem)' }}
+      >
+        <main className="flex flex-col h-full border-t border-gray-200">
+          <TabBar
+            activeTab={activeTab}
+            onChange={(tabName: 'tl' | 'format' | 'nameConv' | 'usage') => {
+              setActiveTab(tabName)
+            }}
+          />
+          {activeTab === 'tl' && (
+            <TLInput
+              tl={tl}
+              onChange={(event) => {
+                setTl(event.target.value)
               }}
             />
-            {activeTab === 'tl' && (
-              <TLInput
-                tl={tl}
-                onChange={(event) => {
-                  setTl(event.target.value)
-                }}
-              />
-            )}
-            {activeTab === 'nameConv' && <CharacterNameConverter />}
-          </main>
-          <main className="flex flex-col h-full border-t border-gray-200">
-            <TabBar
-              activeTab={activeTab}
-              onChange={(tabName: 'tl' | 'format' | 'nameConv' | 'usage') => {
-                setActiveTab(tabName)
-              }}
+          )}
+          {activeTab === 'nameConv' && (
+            <CharacterNameConverter
+              characterNameConvs={characterNameConvs}
+              handleDelete={handleDelete}
             />
-            {activeTab === 'tl' && (
-              <TLInput
-                tl={tl}
-                onChange={(event) => {
-                  setTl(event.target.value)
-                }}
-              />
-            )}
-            {activeTab === 'nameConv' && <CharacterNameConverter />}
-          </main>
-        </SplitPane>
-      </div>
+          )}
+        </main>
+        <main className="flex flex-col h-full border-t border-l border-gray-200">
+          a
+        </main>
+      </SplitPane>
     </>
   )
 }

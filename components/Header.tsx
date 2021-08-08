@@ -1,7 +1,7 @@
 import { VFC } from 'react'
 
 const Header: VFC = () => (
-  <header className="flex fixed z-10 h-16 top-0 left-0 flex-none py-3 pl-5 items-center space-x-4">
+  <header className="flex relative z-10 h-16 top-0 left-0 flex-none py-3 pl-5 items-center space-x-4">
     <div className="flex-initial text-2xl font-bold font-mono">
       TL
       <span className="italic text-turquoise-500 text-lg ml-1 tracking-tight">
