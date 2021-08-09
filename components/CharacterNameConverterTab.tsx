@@ -28,7 +28,6 @@ const CharacterNameConverter: VFC<Props> = ({
         <TextField
           className="w-5/12"
           size="small"
-          id="outlined-basic"
           label="変換前キャラ名"
           variant="outlined"
           value={nameFrom}
@@ -53,7 +52,6 @@ const CharacterNameConverter: VFC<Props> = ({
         <TextField
           className=" w-1/3"
           size="small"
-          id="outlined-basic"
           label="変換後キャラ名"
           variant="outlined"
           value={nameTo}
@@ -63,7 +61,7 @@ const CharacterNameConverter: VFC<Props> = ({
           className={clsx(
             'rounded-full p-1 ml-1 transition-colors duration-300 text-gray-500',
             {
-              'opacity-50': nameFrom === '' || nameTo === '',
+              'opacity-50 cursor-default': nameFrom === '' || nameTo === '',
               'hover:bg-gray-200 active:bg-gray-400': !(
                 nameFrom === '' || nameTo === ''
               ),

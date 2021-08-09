@@ -3,8 +3,9 @@ import { VFC } from 'react'
 import TabBar from '../components/Tab'
 import SplitPane from 'react-split-pane'
 import Header from '../components/Header'
-import TLInput from '../components/TLInput'
-import CharacterNameConverter from '../components/CharacterNameConverter'
+import TLInputTab from '../components/TLInputTab'
+import CharacterNameConverterTab from '../components/CharacterNameConverterTab'
+import FormatTab from '../components/FormatTab'
 
 const TabTest: VFC = () => {
   const [activeTab, setActiveTab] = useState<
@@ -13,9 +14,7 @@ const TabTest: VFC = () => {
   const [tl, setTl] = useState('')
 
   const [nameFromNameConv, setNameFromNameConv] = useState('')
-
   const [nameToNameConv, setNameToNameConv] = useState('')
-
   const [characterNameConvs, setCharacterNameConvs] = useState<{
     [key: string]: string
   }>({
@@ -38,6 +37,11 @@ const TabTest: VFC = () => {
     setNameToNameConv('')
   }
 
+  const [headerFormat, setHeaderFormat] = useState('')
+  const [selfUbFormat, setSelfUbFormat] = useState('')
+  const [bossUbFormat, setBossUbFormat] = useState('')
+  const [footerFormat, setFooterFormat] = useState('')
+
   return (
     <>
       <Header />
@@ -55,7 +59,7 @@ const TabTest: VFC = () => {
             }}
           />
           {activeTab === 'tl' && (
-            <TLInput
+            <TLInputTab
               tl={tl}
               onChange={(event) => {
                 setTl(event.target.value)
@@ -63,7 +67,7 @@ const TabTest: VFC = () => {
             />
           )}
           {activeTab === 'nameConv' && (
-            <CharacterNameConverter
+            <CharacterNameConverterTab
               characterNameConvs={characterNameConvs}
               handleDelete={handleDeleteNameConv}
               handleAdd={handleAddNameConv}
@@ -71,6 +75,18 @@ const TabTest: VFC = () => {
               setNameFrom={setNameFromNameConv}
               nameTo={nameToNameConv}
               setNameTo={setNameToNameConv}
+            />
+          )}
+          {activeTab === 'format' && (
+            <FormatTab
+              headerFormat={headerFormat}
+              handleHeaderFormatChange={setHeaderFormat}
+              selfUbFormat={selfUbFormat}
+              handleSelfUbFormatChange={setSelfUbFormat}
+              bossUbFormat={bossUbFormat}
+              handleBossUbFormatChange={setBossUbFormat}
+              footerFormat={footerFormat}
+              handleFooterFormatChange={setFooterFormat}
             />
           )}
         </main>
