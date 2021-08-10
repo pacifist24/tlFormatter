@@ -9,7 +9,7 @@ const TLInputTab: VFC<{
       className="resize-none h-screen w-full focus:outline-none p-2"
       value={tl}
       onChange={onChange}
-      placeholder="TLを貼りつけてください"
+      placeholder="アプリから取得したTLを貼りつけてください"
     />
   </>
 )

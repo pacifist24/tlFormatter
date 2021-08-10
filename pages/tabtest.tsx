@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { VFC } from 'react'
 import TabBar from '../components/Tab'
 import SplitPane from 'react-split-pane'
@@ -6,6 +6,8 @@ import Header from '../components/Header'
 import TLInputTab from '../components/TLInputTab'
 import CharacterNameConverterTab from '../components/CharacterNameConverterTab'
 import FormatTab from '../components/FormatTab'
+import { formatTL } from '../lib/tlFormatter'
+import { DEFAULT_FORMAT } from '../lib/format'
 
 const TabTest: VFC = () => {
   const [activeTab, setActiveTab] = useState<
@@ -17,11 +19,7 @@ const TabTest: VFC = () => {
   const [nameToNameConv, setNameToNameConv] = useState('')
   const [characterNameConvs, setCharacterNameConvs] = useState<{
     [key: string]: string
-  }>({
-    'サレン(サマー)': '水サレ',
-    'ニャル(ニューイヤー)': 'ニャル',
-    'キャル(サマー)': '水キャル',
-  })
+  }>()
 
   const handleDeleteNameConv = (nameFrom: string) => () => {
     const clone = { ...characterNameConvs }
@@ -42,10 +40,45 @@ const TabTest: VFC = () => {
   const [bossUbFormat, setBossUbFormat] = useState('')
   const [footerFormat, setFooterFormat] = useState('')
 
+  const [formattedTL, setFormattedTL] = useState('')
+  useEffect(() => {
+    if (tl !== '') {
+      try {
+        setFormattedTL(
+          formatTL(
+            tl,
+            headerFormat,
+            selfUbFormat,
+            bossUbFormat,
+            footerFormat,
+            characterNameConvs
+          )
+        )
+      } catch (e) {
+        setFormattedTL('TL解析失敗しました')
+      }
+    }
+  }, [
+    tl,
+    headerFormat,
+    selfUbFormat,
+    bossUbFormat,
+    footerFormat,
+    characterNameConvs,
+  ])
+
+  // マウント時に各種設定を初期化する
+  useEffect(() => {
+    setHeaderFormat(DEFAULT_FORMAT.headerFormat)
+    setSelfUbFormat(DEFAULT_FORMAT.selfUbFormat)
+    setBossUbFormat(DEFAULT_FORMAT.bossUbFormat)
+    setFooterFormat(DEFAULT_FORMAT.footerFormat)
+    setCharacterNameConvs(DEFAULT_FORMAT.characterNameConvs)
+  }, [])
+
   return (
     <>
       <Header />
-
       <SplitPane
         split="vertical"
         defaultSize="50%"
@@ -61,8 +94,8 @@ const TabTest: VFC = () => {
           {activeTab === 'tl' && (
             <TLInputTab
               tl={tl}
-              onChange={(event) => {
-                setTl(event.target.value)
+              onChange={(e) => {
+                setTl(e.target.value)
               }}
             />
           )}
@@ -91,7 +124,11 @@ const TabTest: VFC = () => {
           )}
         </main>
         <main className="flex flex-col h-full border-t border-l border-gray-200">
-          a
+          <textarea
+            className="resize-none h-screen w-full focus:outline-none p-2"
+            value={formattedTL}
+            readOnly
+          />
         </main>
       </SplitPane>
     </>

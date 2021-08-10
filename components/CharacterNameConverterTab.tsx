@@ -86,7 +86,7 @@ const CharacterNameConverter: VFC<Props> = ({
           </svg>
         </button>
       </div>
-      <div className="flex flex-wrap mt-3">
+      <div className=" overflow-scroll flex flex-wrap mt-3">
         {Object.keys(characterNameConvs).map((val) => (
           <Chip onDelete={handleDelete(val)} key={val}>
             {val} <br />⇒ {characterNameConvs[val]}
