@@ -26,6 +26,7 @@ const ConfigTab: VFC<Props> = ({
             label="分"
             variant="outlined"
             type="number"
+            size="small"
             InputLabelProps={{
               shrink: true,
             }}
@@ -39,6 +40,7 @@ const ConfigTab: VFC<Props> = ({
             label="秒"
             variant="outlined"
             type="number"
+            size="small"
             InputLabelProps={{
               shrink: true,
             }}
