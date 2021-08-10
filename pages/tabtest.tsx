@@ -9,6 +9,7 @@ import FormatTab from '../components/FormatTab'
 import ConfigTab from '../components/Config'
 import { formatTL } from '../lib/tlFormatter'
 import { DEFAULT_FORMAT } from '../lib/format'
+// import { isMobile } from 'react-device-detect'
 
 const TabTest: VFC = () => {
   const [activeTab, setActiveTab] = useState<
@@ -92,7 +93,7 @@ const TabTest: VFC = () => {
       <Header />
       <SplitPane
         split="vertical"
-        defaultSize="50%"
+        defaultSize="65%"
         style={{ height: 'calc(100% - 4rem)' }}
       >
         <main className="flex flex-col h-full border-t border-gray-200">
