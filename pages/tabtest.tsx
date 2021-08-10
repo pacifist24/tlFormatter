@@ -13,7 +13,7 @@ import { isMobile } from 'react-device-detect'
 
 const TabTest: VFC = () => {
   const [activeTab, setActiveTab] = useState<
-    'tl' | 'format' | 'name' | 'config' | 'usage'
+    'tl' | 'format' | 'name' | 'config' | 'usage' | 'output'
   >('tl')
   const [tl, setTl] = useState('')
 
@@ -88,49 +88,58 @@ const TabTest: VFC = () => {
     setCharacterNameConvs(DEFAULT_FORMAT.characterNameConvs)
   }, [])
 
+  const commonTabs = (
+    <>
+      <TabBar
+        activeTab={activeTab}
+        onChange={(
+          tabName: 'tl' | 'format' | 'name' | 'config' | 'usage' | 'output'
+        ) => {
+          setActiveTab(tabName)
+        }}
+      />
+      {activeTab === 'tl' && <TLInputTab tl={tl} onChange={setTl} />}
+      {activeTab === 'name' && (
+        <CharacterNameConverterTab
+          characterNameConvs={characterNameConvs}
+          handleDelete={handleDeleteNameConv}
+          handleAdd={handleAddNameConv}
+          nameFrom={nameFromNameConv}
+          setNameFrom={setNameFromNameConv}
+          nameTo={nameToNameConv}
+          setNameTo={setNameToNameConv}
+        />
+      )}
+      {activeTab === 'format' && (
+        <FormatTab
+          headerFormat={headerFormat}
+          handleHeaderFormatChange={setHeaderFormat}
+          selfUbFormat={selfUbFormat}
+          handleSelfUbFormatChange={setSelfUbFormat}
+          bossUbFormat={bossUbFormat}
+          handleBossUbFormatChange={setBossUbFormat}
+          footerFormat={footerFormat}
+          handleFooterFormatChange={setFooterFormat}
+        />
+      )}
+      {activeTab === 'config' && (
+        <ConfigTab
+          minutes={minConfig}
+          seconds={secConfig}
+          handleChangeMin={handleChangeMin}
+          handleChangeSec={setSecConfig}
+        />
+      )}
+    </>
+  )
+
   return (
     <>
       <Header />
-      {isMobile && <span>aaa</span>}
-      <SplitPane
-        split="vertical"
-        defaultSize="65%"
-        style={{ height: 'calc(100% - 4rem)' }}
-      >
+      {isMobile && (
         <main className="flex flex-col h-full border-t border-gray-200">
-          <TabBar
-            activeTab={activeTab}
-            onChange={(
-              tabName: 'tl' | 'format' | 'name' | 'config' | 'usage'
-            ) => {
-              setActiveTab(tabName)
-            }}
-          />
-          {activeTab === 'tl' && <TLInputTab tl={tl} onChange={setTl} />}
-          {activeTab === 'name' && (
-            <CharacterNameConverterTab
-              characterNameConvs={characterNameConvs}
-              handleDelete={handleDeleteNameConv}
-              handleAdd={handleAddNameConv}
-              nameFrom={nameFromNameConv}
-              setNameFrom={setNameFromNameConv}
-              nameTo={nameToNameConv}
-              setNameTo={setNameToNameConv}
-            />
-          )}
-          {activeTab === 'format' && (
-            <FormatTab
-              headerFormat={headerFormat}
-              handleHeaderFormatChange={setHeaderFormat}
-              selfUbFormat={selfUbFormat}
-              handleSelfUbFormatChange={setSelfUbFormat}
-              bossUbFormat={bossUbFormat}
-              handleBossUbFormatChange={setBossUbFormat}
-              footerFormat={footerFormat}
-              handleFooterFormatChange={setFooterFormat}
-            />
-          )}
-          {activeTab === 'config' && (
+          {commonTabs}
+          {activeTab === 'output' && (
             <ConfigTab
               minutes={minConfig}
               seconds={secConfig}
@@ -139,14 +148,25 @@ const TabTest: VFC = () => {
             />
           )}
         </main>
-        <main className="flex flex-col h-full border-t border-l border-gray-200">
-          <textarea
-            className="resize-none h-screen w-full focus:outline-none p-2"
-            value={formattedTL}
-            readOnly
-          />
-        </main>
-      </SplitPane>
+      )}
+      {!isMobile && (
+        <SplitPane
+          split="vertical"
+          defaultSize="65%"
+          style={{ height: 'calc(100% - 4rem)' }}
+        >
+          <main className="flex flex-col h-full border-t border-gray-200">
+            {commonTabs}
+          </main>
+          <main className="flex flex-col h-full border-t border-l border-gray-200">
+            <textarea
+              className="resize-none h-screen w-full focus:outline-none p-2"
+              value={formattedTL}
+              readOnly
+            />
+          </main>
+        </SplitPane>
+      )}
     </>
   )
 }

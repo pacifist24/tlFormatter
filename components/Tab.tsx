@@ -1,8 +1,9 @@
 import clsx from 'clsx'
 import { FC, VFC } from 'react'
+import { isMobile } from 'react-device-detect'
 
 const TabBar: VFC<{
-  activeTab: 'tl' | 'format' | 'name' | 'config' | 'usage'
+  activeTab: 'tl' | 'format' | 'name' | 'config' | 'usage' | 'output'
   onChange: (param: string) => void
 }> = ({ activeTab, onChange }) => (
   <div className="flex space-x-5 pl-5 pr-4 border-b">
@@ -30,6 +31,14 @@ const TabBar: VFC<{
     >
       Usage
     </TabButton>
+    {isMobile && (
+      <TabButton
+        isActive={activeTab === 'output'}
+        onClick={() => onChange('output')}
+      >
+        Output
+      </TabButton>
+    )}
   </div>
 )
 export default TabBar
