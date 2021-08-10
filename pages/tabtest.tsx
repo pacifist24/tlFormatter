@@ -6,12 +6,13 @@ import Header from '../components/Header'
 import TLInputTab from '../components/TLInputTab'
 import CharacterNameConverterTab from '../components/CharacterNameConverterTab'
 import FormatTab from '../components/FormatTab'
+import ConfigTab from '../components/Config'
 import { formatTL } from '../lib/tlFormatter'
 import { DEFAULT_FORMAT } from '../lib/format'
 
 const TabTest: VFC = () => {
   const [activeTab, setActiveTab] = useState<
-    'tl' | 'format' | 'nameConv' | 'usage'
+    'tl' | 'format' | 'name' | 'config' | 'usage'
   >('tl')
   const [tl, setTl] = useState('')
 
@@ -28,8 +29,7 @@ const TabTest: VFC = () => {
   }
 
   const handleAddNameConv = (nameFrom: string, nameTo: string) => () => {
-    const clone = { ...characterNameConvs }
-    clone[nameFrom] = nameTo
+    const clone = { [nameFrom]: nameTo, ...characterNameConvs }
     setCharacterNameConvs(clone)
     setNameFromNameConv('')
     setNameToNameConv('')
@@ -67,6 +67,14 @@ const TabTest: VFC = () => {
     characterNameConvs,
   ])
 
+  const [minConfig, setMinConfig] = useState(1)
+  const [secConfig, setSecConfig] = useState(30)
+
+  const handleChangeMin = (val: number) => {
+    setMinConfig(val)
+    setSecConfig(30)
+  }
+
   // マウント時に各種設定を初期化する
   useEffect(() => {
     setHeaderFormat(DEFAULT_FORMAT.headerFormat)
@@ -87,19 +95,14 @@ const TabTest: VFC = () => {
         <main className="flex flex-col h-full border-t border-gray-200">
           <TabBar
             activeTab={activeTab}
-            onChange={(tabName: 'tl' | 'format' | 'nameConv' | 'usage') => {
+            onChange={(
+              tabName: 'tl' | 'format' | 'name' | 'config' | 'usage'
+            ) => {
               setActiveTab(tabName)
             }}
           />
-          {activeTab === 'tl' && (
-            <TLInputTab
-              tl={tl}
-              onChange={(e) => {
-                setTl(e.target.value)
-              }}
-            />
-          )}
-          {activeTab === 'nameConv' && (
+          {activeTab === 'tl' && <TLInputTab tl={tl} onChange={setTl} />}
+          {activeTab === 'name' && (
             <CharacterNameConverterTab
               characterNameConvs={characterNameConvs}
               handleDelete={handleDeleteNameConv}
@@ -120,6 +123,14 @@ const TabTest: VFC = () => {
               handleBossUbFormatChange={setBossUbFormat}
               footerFormat={footerFormat}
               handleFooterFormatChange={setFooterFormat}
+            />
+          )}
+          {activeTab === 'config' && (
+            <ConfigTab
+              minutes={minConfig}
+              seconds={secConfig}
+              handleChangeMin={handleChangeMin}
+              handleChangeSec={setSecConfig}
             />
           )}
         </main>

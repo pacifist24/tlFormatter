@@ -2,7 +2,7 @@ import clsx from 'clsx'
 import { FC, VFC } from 'react'
 
 const TabBar: VFC<{
-  activeTab: 'tl' | 'format' | 'nameConv' | 'usage'
+  activeTab: 'tl' | 'format' | 'name' | 'config' | 'usage'
   onChange: (param: string) => void
 }> = ({ activeTab, onChange }) => (
   <div className="flex space-x-5 pl-5 pr-4 border-b">
@@ -15,11 +15,14 @@ const TabBar: VFC<{
     >
       Format
     </TabButton>
+    <TabButton isActive={activeTab === 'name'} onClick={() => onChange('name')}>
+      Name
+    </TabButton>
     <TabButton
-      isActive={activeTab === 'nameConv'}
-      onClick={() => onChange('nameConv')}
+      isActive={activeTab === 'config'}
+      onClick={() => onChange('config')}
     >
-      NameConv
+      Config
     </TabButton>
     <TabButton
       isActive={activeTab === 'usage'}

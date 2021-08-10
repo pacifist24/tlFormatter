@@ -24,7 +24,7 @@ const CharacterNameConverter: VFC<Props> = ({
 }) => {
   return (
     <>
-      <div className="flex justify-center items-center mt-3">
+      <div className="flex justify-center items-center mt-8">
         <TextField
           className="w-5/12"
           size="small"
@@ -86,7 +86,7 @@ const CharacterNameConverter: VFC<Props> = ({
           </svg>
         </button>
       </div>
-      <div className=" overflow-scroll flex flex-wrap mt-3">
+      <div className=" overflow-scroll flex flex-wrap mt-8">
         {Object.keys(characterNameConvs).map((val) => (
           <Chip onDelete={handleDelete(val)} key={val}>
             {val} <br />⇒ {characterNameConvs[val]}
