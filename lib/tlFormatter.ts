@@ -121,7 +121,8 @@ export const formatTL = (
   selfUbFormat: string,
   bossUbFormat: string,
   footerFormat: string,
-  nameConvs: { [key: string]: string }
+  nameConvs: { [key: string]: string },
+  startTime: number
 ): string => {
   // 名前の変換を行う
   const convertName = (name: string) => {
@@ -136,16 +137,22 @@ export const formatTL = (
   const bossUbTemplateText = bossUbFormat + '\n'
   const footerTemplateText = footerFormat + '\n'
   const tlData = parseTlData(tl)
+  const lessTime = tlData.startTime - startTime
   let timelineOutput = ''
   for (const ub of tlData.timeline) {
+    if (ub.time - lessTime < 1) {
+      // 時間不足によりUBが打てなければ以降をカット
+      break
+    }
+
     if (ub.name === tlData.bossName) {
       timelineOutput += bossUbTemplateText.replace(
         '<UB使用時秒数>',
-        timeNum2Str(ub.time).substr(1)
+        timeNum2Str(ub.time - lessTime).substr(1)
       )
     } else {
       timelineOutput += characterUbTemplateText
-        .replace('<UB使用時秒数>', timeNum2Str(ub.time).substr(1))
+        .replace('<UB使用時秒数>', timeNum2Str(ub.time - lessTime).substr(1))
         .replace('<UB使用キャラ名>', convertName(ub.name))
     }
   }
@@ -178,6 +185,11 @@ export const formatTL = (
     .replace('<キャラ5星>', tlData.characters[4].star.toString())
     .replace('<キャラ5R>', tlData.characters[4].rank.toString())
     .replace('<キャラ5LV>', tlData.characters[4].lv.toString())
-    .replace('<開始秒数>', timeNum2Str(tlData.startTime).substr(1))
-    .replace('<終了秒数>', timeNum2Str(tlData.endTime).substr(1))
+    .replace('<開始秒数>', timeNum2Str(tlData.startTime - lessTime).substr(1))
+    .replace(
+      '<終了秒数>',
+      timeNum2Str(
+        tlData.endTime - lessTime > 0 ? tlData.endTime - lessTime : 0
+      ).substr(1)
+    )
 }

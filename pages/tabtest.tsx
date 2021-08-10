@@ -40,6 +40,14 @@ const TabTest: VFC = () => {
   const [bossUbFormat, setBossUbFormat] = useState('')
   const [footerFormat, setFooterFormat] = useState('')
 
+  const [minConfig, setMinConfig] = useState(1)
+  const [secConfig, setSecConfig] = useState(30)
+
+  const handleChangeMin = (val: number) => {
+    setMinConfig(val)
+    setSecConfig(30)
+  }
+
   const [formattedTL, setFormattedTL] = useState('')
   useEffect(() => {
     if (tl !== '') {
@@ -51,7 +59,8 @@ const TabTest: VFC = () => {
             selfUbFormat,
             bossUbFormat,
             footerFormat,
-            characterNameConvs
+            characterNameConvs,
+            minConfig * 60 + secConfig
           )
         )
       } catch (e) {
@@ -65,15 +74,9 @@ const TabTest: VFC = () => {
     bossUbFormat,
     footerFormat,
     characterNameConvs,
+    minConfig,
+    secConfig,
   ])
-
-  const [minConfig, setMinConfig] = useState(1)
-  const [secConfig, setSecConfig] = useState(30)
-
-  const handleChangeMin = (val: number) => {
-    setMinConfig(val)
-    setSecConfig(30)
-  }
 
   // マウント時に各種設定を初期化する
   useEffect(() => {
