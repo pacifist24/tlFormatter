@@ -25,12 +25,6 @@ const TabBar: VFC<{
     >
       Config
     </TabButton>
-    <TabButton
-      isActive={activeTab === 'usage'}
-      onClick={() => onChange('usage')}
-    >
-      Usage
-    </TabButton>
     {isMobile && (
       <TabButton
         isActive={activeTab === 'output'}

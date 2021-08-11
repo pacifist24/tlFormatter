@@ -122,8 +122,15 @@ export const formatTL = (
   bossUbFormat: string,
   footerFormat: string,
   nameConvs: { [key: string]: string },
-  startTime: number
+  startTime: number,
+  paddingName: string
 ): string => {
+  const headerTemplateText = headerFormat + '\n'
+  const characterUbTemplateText = selfUbFormat + '\n'
+  const bossUbTemplateText = bossUbFormat + '\n'
+  const footerTemplateText = footerFormat + '\n'
+  const tlData = parseTlData(tl)
+
   // 名前の変換を行う
   const convertName = (name: string) => {
     if (name in nameConvs) {
@@ -132,11 +139,47 @@ export const formatTL = (
     return name
   }
 
-  const headerTemplateText = headerFormat + '\n'
-  const characterUbTemplateText = selfUbFormat + '\n'
-  const bossUbTemplateText = bossUbFormat + '\n'
-  const footerTemplateText = footerFormat + '\n'
-  const tlData = parseTlData(tl)
+  // 半角は1文字 全角は2文字として文字数をカウント
+  const getLen = (str: string) => {
+    let result = 0
+    for (let i = 0; i < str.length; i++) {
+      const chr = str.charCodeAt(i)
+      if (
+        (chr >= 0x00 && chr < 0x81) ||
+        chr === 0xf8f0 ||
+        (chr >= 0xff61 && chr < 0xffa0) ||
+        (chr >= 0xf8f1 && chr < 0xf8f4)
+      ) {
+        //半角文字の場合は1を加算
+        result += 1
+      } else {
+        //それ以外の文字の場合は2を加算
+        result += 2
+      }
+    }
+    //結果を返す
+    return result
+  }
+
+  // 一番長い名前のキャラの名前の長さ
+  const maxLength = Math.max(
+    ...tlData.characters.map((character) => getLen(convertName(character.name)))
+  )
+  const doPadding = (name: string) => {
+    const nameLen = getLen(name)
+    const paddingStr =
+      Array(Math.floor((maxLength - nameLen) / 2) + 1).join('　') +
+      ((maxLength - nameLen) % 2 === 1 ? ' ' : '')
+    switch (paddingName) {
+      case 'none':
+        return name
+      case 'head':
+        return paddingStr + name
+      default:
+        return name + paddingStr
+    }
+  }
+
   const lessTime = tlData.startTime - startTime
   let timelineOutput = ''
   for (const ub of tlData.timeline) {
@@ -153,7 +196,7 @@ export const formatTL = (
     } else {
       timelineOutput += characterUbTemplateText
         .replace('<UB使用時秒数>', timeNum2Str(ub.time - lessTime).substr(1))
-        .replace('<UB使用キャラ名>', convertName(ub.name))
+        .replace('<UB使用キャラ名>', doPadding(convertName(ub.name)))
     }
   }
   timelineOutput = headerTemplateText + timelineOutput + footerTemplateText
@@ -165,23 +208,23 @@ export const formatTL = (
     .replace('<ダメージ>', Math.floor(tlData.damage / 10000) + '万')
     .replace('<所要秒数>', tlData.duration.toString())
     .replace('<バトル日時>', tlData.battleDate.toString())
-    .replace('<キャラ1名>', convertName(tlData.characters[0].name))
+    .replace('<キャラ1名>', doPadding(convertName(tlData.characters[0].name)))
     .replace('<キャラ1星>', tlData.characters[0].star.toString())
     .replace('<キャラ1R>', tlData.characters[0].rank.toString())
     .replace('<キャラ1LV>', tlData.characters[0].lv.toString())
-    .replace('<キャラ2名>', convertName(tlData.characters[1].name))
+    .replace('<キャラ2名>', doPadding(convertName(tlData.characters[1].name)))
     .replace('<キャラ2星>', tlData.characters[1].star.toString())
     .replace('<キャラ2R>', tlData.characters[1].rank.toString())
     .replace('<キャラ2LV>', tlData.characters[1].lv.toString())
-    .replace('<キャラ3名>', convertName(tlData.characters[2].name))
+    .replace('<キャラ3名>', doPadding(convertName(tlData.characters[2].name)))
     .replace('<キャラ3星>', tlData.characters[2].star.toString())
     .replace('<キャラ3R>', tlData.characters[2].rank.toString())
     .replace('<キャラ3LV>', tlData.characters[2].lv.toString())
-    .replace('<キャラ4名>', convertName(tlData.characters[3].name))
+    .replace('<キャラ4名>', doPadding(convertName(tlData.characters[3].name)))
     .replace('<キャラ4星>', tlData.characters[3].star.toString())
     .replace('<キャラ4R>', tlData.characters[3].rank.toString())
     .replace('<キャラ4LV>', tlData.characters[3].lv.toString())
-    .replace('<キャラ5名>', convertName(tlData.characters[4].name))
+    .replace('<キャラ5名>', doPadding(convertName(tlData.characters[4].name)))
     .replace('<キャラ5星>', tlData.characters[4].star.toString())
     .replace('<キャラ5R>', tlData.characters[4].rank.toString())
     .replace('<キャラ5LV>', tlData.characters[4].lv.toString())

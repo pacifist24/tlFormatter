@@ -9,7 +9,7 @@ export const DEFAULT_FORMAT = {
     '<キャラ5名> <キャラ5星>/<キャラ5R> Lv<キャラ5LV>\n\n' +
     '<開始秒数> バトル開始',
   selfUbFormat: '<UB使用時秒数> <UB使用キャラ名>',
-  bossUbFormat: '\n -- <UB使用時秒数> ボス --\n',
+  bossUbFormat: '\n-- <UB使用時秒数> ボス --\n',
   footerFormat: '<終了秒数> バトル終了 (バトル時間 <所要秒数>秒)',
   characterNameConvs: {
     'ムイミ（ニューイヤー）': 'ニュイミ',

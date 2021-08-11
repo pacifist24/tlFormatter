@@ -10,15 +10,16 @@ import ConfigTab from '../components/Config'
 import { formatTL } from '../lib/tlFormatter'
 import { DEFAULT_FORMAT } from '../lib/format'
 import { isMobile } from 'react-device-detect'
-import {
-  genIdForHash,
-  storeFormatStyle,
-  fetchFormatStyle,
-} from '../lib/fireStoreForShare'
+import Snackbar from '@material-ui/core/Snackbar'
+// import {
+//   genIdForHash,
+//   storeFormatStyle,
+//   fetchFormatStyle,
+// } from '../lib/fireStoreForShare'
 
 const TabTest: VFC = () => {
   const [activeTab, setActiveTab] = useState<
-    'tl' | 'format' | 'name' | 'config' | 'usage' | 'output'
+    'tl' | 'format' | 'name' | 'config' | 'output'
   >('tl')
   const [tl, setTl] = useState('')
 
@@ -35,7 +36,8 @@ const TabTest: VFC = () => {
   }
 
   const handleAddNameConv = (nameFrom: string, nameTo: string) => () => {
-    const clone = { [nameFrom]: nameTo, ...characterNameConvs }
+    const clone = { ...characterNameConvs }
+    clone[nameFrom] = nameTo
     setCharacterNameConvs(clone)
     setNameFromNameConv('')
     setNameToNameConv('')
@@ -49,42 +51,44 @@ const TabTest: VFC = () => {
   const [minConfig, setMinConfig] = useState(1)
   const [secConfig, setSecConfig] = useState(30)
 
+  const [namePadding, setNamePadding] = useState('none')
+
   const handleChangeMin = (val: number) => {
     setMinConfig(val)
     setSecConfig(30)
   }
 
-  const handleStoreFormatStyle = async () => {
-    storeFormatStyle({
-      characterNameConvs,
-      headerFormat,
-      selfUbFormat,
-      bossUbFormat,
-      footerFormat,
-      minConfig,
-      secConfig,
-    })
-  }
+  // const handleStoreFormatStyle = async () => {
+  //   storeFormatStyle({
+  //     characterNameConvs,
+  //     headerFormat,
+  //     selfUbFormat,
+  //     bossUbFormat,
+  //     footerFormat,
+  //     minConfig,
+  //     secConfig,
+  //   })
+  // }
 
-  const handleFetchFormatStyle = async () => {
-    const id = await genIdForHash({
-      characterNameConvs,
-      headerFormat,
-      selfUbFormat,
-      bossUbFormat,
-      footerFormat,
-      minConfig,
-      secConfig,
-    })
-    const result = await fetchFormatStyle(id)
-    setCharacterNameConvs(result.characterNameConvs)
-    setHeaderFormat(result.headerFormat)
-    setSelfUbFormat(result.selfUbFormat)
-    setBossUbFormat(result.bossUbFormat)
-    setFooterFormat(result.footerFormat)
-    setMinConfig(result.minConfig)
-    setSecConfig(result.secConfig)
-  }
+  // const handleFetchFormatStyle = async () => {
+  //   const id = await genIdForHash({
+  //     characterNameConvs,
+  //     headerFormat,
+  //     selfUbFormat,
+  //     bossUbFormat,
+  //     footerFormat,
+  //     minConfig,
+  //     secConfig,
+  //   })
+  //   const result = await fetchFormatStyle(id)
+  //   setCharacterNameConvs(result.characterNameConvs)
+  //   setHeaderFormat(result.headerFormat)
+  //   setSelfUbFormat(result.selfUbFormat)
+  //   setBossUbFormat(result.bossUbFormat)
+  //   setFooterFormat(result.footerFormat)
+  //   setMinConfig(result.minConfig)
+  //   setSecConfig(result.secConfig)
+  // }
 
   const [formattedTL, setFormattedTL] = useState('')
   useEffect(() => {
@@ -98,7 +102,8 @@ const TabTest: VFC = () => {
             bossUbFormat,
             footerFormat,
             characterNameConvs,
-            minConfig * 60 + secConfig
+            minConfig * 60 + secConfig,
+            namePadding
           )
         )
       } catch (e) {
@@ -114,6 +119,7 @@ const TabTest: VFC = () => {
     characterNameConvs,
     minConfig,
     secConfig,
+    namePadding,
   ])
 
   // マウント時に各種設定を初期化する
@@ -127,13 +133,11 @@ const TabTest: VFC = () => {
 
   const commonTabs = (
     <>
-      <button onClick={handleStoreFormatStyle}>aaa</button>
-      <button onClick={handleFetchFormatStyle}>bbb</button>
+      {/* <button onClick={handleStoreFormatStyle}>aaa</button>
+      <button onClick={handleFetchFormatStyle}>bbb</button> */}
       <TabBar
         activeTab={activeTab}
-        onChange={(
-          tabName: 'tl' | 'format' | 'name' | 'config' | 'usage' | 'output'
-        ) => {
+        onChange={(tabName: 'tl' | 'format' | 'name' | 'config' | 'output') => {
           setActiveTab(tabName)
         }}
       />
@@ -167,9 +171,45 @@ const TabTest: VFC = () => {
           seconds={secConfig}
           handleChangeMin={handleChangeMin}
           handleChangeSec={setSecConfig}
+          namePadding={namePadding}
+          handleChangeNamePadding={setNamePadding}
         />
       )}
     </>
+  )
+
+  const [copyOutputTLSnackBarOpen, setCopyOutputTLSnackBarOpen] =
+    useState(false)
+
+  const handleCopyOutputTL = () => {
+    navigator.clipboard.writeText(formattedTL)
+    setCopyOutputTLSnackBarOpen(true)
+  }
+
+  const output = (
+    <main className="flex flex-col h-full border-t border-l border-gray-200">
+      <button
+        className="h-screen"
+        onClick={handleCopyOutputTL}
+        title="出力TLをコピー"
+      >
+        <textarea
+          className="cursor-pointer resize-none h-full w-full focus:outline-none p-2"
+          value={formattedTL}
+          readOnly
+        />
+      </button>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+        onClose={() => setCopyOutputTLSnackBarOpen(false)}
+        open={copyOutputTLSnackBarOpen}
+        autoHideDuration={1500}
+        message="出力TLをコピーしました"
+      />
+    </main>
   )
 
   return (
@@ -179,12 +219,13 @@ const TabTest: VFC = () => {
         <main className="flex flex-col h-full border-t border-gray-200">
           {commonTabs}
           {activeTab === 'output' && (
-            <ConfigTab
-              minutes={minConfig}
-              seconds={secConfig}
-              handleChangeMin={handleChangeMin}
-              handleChangeSec={setSecConfig}
-            />
+            <main className="flex flex-col h-full border-t border-l border-gray-200">
+              <textarea
+                className="resize-none h-screen w-full focus:outline-none p-2"
+                value={formattedTL}
+                readOnly
+              />
+            </main>
           )}
         </main>
       )}
@@ -197,13 +238,7 @@ const TabTest: VFC = () => {
           <main className="flex flex-col h-full border-t border-gray-200">
             {commonTabs}
           </main>
-          <main className="flex flex-col h-full border-t border-l border-gray-200">
-            <textarea
-              className="resize-none h-screen w-full focus:outline-none p-2"
-              value={formattedTL}
-              readOnly
-            />
-          </main>
+          {output}
         </SplitPane>
       )}
     </>
