@@ -1,5 +1,6 @@
 export const DEFAULT_FORMAT = {
   headerFormat:
+    '<バトル日時>\n' +
     '<段階>段階目 <ボス名> <ダメージ>\n' +
     '<キャラ1名> <キャラ1星>/<キャラ1R> Lv<キャラ1LV>\n' +
     '<キャラ2名> <キャラ2星>/<キャラ2R> Lv<キャラ2LV>\n' +
@@ -9,7 +10,7 @@ export const DEFAULT_FORMAT = {
     '<開始秒数> バトル開始',
   selfUbFormat: '<UB使用時秒数> <UB使用キャラ名>',
   bossUbFormat: '\n -- <UB使用時秒数> ボス --\n',
-  footerFormat: '<終了秒数> バトル終了',
+  footerFormat: '<終了秒数> バトル終了 (バトル時間 <所要秒数>秒)',
   characterNameConvs: {
     'ムイミ（ニューイヤー）': 'ニュイミ',
     'クウカ（オーエド）': 'オウカ',

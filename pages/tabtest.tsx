@@ -10,6 +10,11 @@ import ConfigTab from '../components/Config'
 import { formatTL } from '../lib/tlFormatter'
 import { DEFAULT_FORMAT } from '../lib/format'
 import { isMobile } from 'react-device-detect'
+import {
+  genIdForHash,
+  storeFormatStyle,
+  fetchFormatStyle,
+} from '../lib/fireStoreForShare'
 
 const TabTest: VFC = () => {
   const [activeTab, setActiveTab] = useState<
@@ -47,6 +52,38 @@ const TabTest: VFC = () => {
   const handleChangeMin = (val: number) => {
     setMinConfig(val)
     setSecConfig(30)
+  }
+
+  const handleStoreFormatStyle = async () => {
+    storeFormatStyle({
+      characterNameConvs,
+      headerFormat,
+      selfUbFormat,
+      bossUbFormat,
+      footerFormat,
+      minConfig,
+      secConfig,
+    })
+  }
+
+  const handleFetchFormatStyle = async () => {
+    const id = await genIdForHash({
+      characterNameConvs,
+      headerFormat,
+      selfUbFormat,
+      bossUbFormat,
+      footerFormat,
+      minConfig,
+      secConfig,
+    })
+    const result = await fetchFormatStyle(id)
+    setCharacterNameConvs(result.characterNameConvs)
+    setHeaderFormat(result.headerFormat)
+    setSelfUbFormat(result.selfUbFormat)
+    setBossUbFormat(result.bossUbFormat)
+    setFooterFormat(result.footerFormat)
+    setMinConfig(result.minConfig)
+    setSecConfig(result.secConfig)
   }
 
   const [formattedTL, setFormattedTL] = useState('')
@@ -90,6 +127,8 @@ const TabTest: VFC = () => {
 
   const commonTabs = (
     <>
+      <button onClick={handleStoreFormatStyle}>aaa</button>
+      <button onClick={handleFetchFormatStyle}>bbb</button>
       <TabBar
         activeTab={activeTab}
         onChange={(
