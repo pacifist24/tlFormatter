@@ -21,7 +21,7 @@ export default function App({ Component, pageProps }): JSX.Element {
         <meta property="og:title" content="TLFormatter" />
         <meta
           property="og:description"
-          content="アプリから出力したTLを整形します、整形のスタイルはカスタマイズ可能です。"
+          content="アプリから出力したTLを整形します。整形のスタイルはカスタマイズできます。カスタマイズしたスタイルはURLで共有することができます(PC版のみ)。"
         />
         <meta property="og:site_name" content="TLFormatter" />
         <meta
