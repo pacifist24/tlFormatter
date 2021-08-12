@@ -11,13 +11,17 @@ import { formatTL } from '../lib/tlFormatter'
 import { DEFAULT_FORMAT } from '../lib/format'
 import { isMobile } from 'react-device-detect'
 import Snackbar from '@material-ui/core/Snackbar'
-// import {
-//   genIdForHash,
-//   storeFormatStyle,
-//   fetchFormatStyle,
-// } from '../lib/fireStoreForShare'
+import {
+  FormatStyle,
+  genIdForHash,
+  storeFormatStyle,
+  fetchFormatStyle,
+} from '../lib/fireStoreForShare'
 
-const TabTest: VFC = () => {
+const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
+  stringfiedFormatStyleObj,
+  paramId,
+}) => {
   const [activeTab, setActiveTab] = useState<
     'tl' | 'format' | 'name' | 'config' | 'output'
   >('tl')
@@ -58,37 +62,7 @@ const TabTest: VFC = () => {
     setSecConfig(30)
   }
 
-  // const handleStoreFormatStyle = async () => {
-  //   storeFormatStyle({
-  //     characterNameConvs,
-  //     headerFormat,
-  //     selfUbFormat,
-  //     bossUbFormat,
-  //     footerFormat,
-  //     minConfig,
-  //     secConfig,
-  //   })
-  // }
-
-  // const handleFetchFormatStyle = async () => {
-  //   const id = await genIdForHash({
-  //     characterNameConvs,
-  //     headerFormat,
-  //     selfUbFormat,
-  //     bossUbFormat,
-  //     footerFormat,
-  //     minConfig,
-  //     secConfig,
-  //   })
-  //   const result = await fetchFormatStyle(id)
-  //   setCharacterNameConvs(result.characterNameConvs)
-  //   setHeaderFormat(result.headerFormat)
-  //   setSelfUbFormat(result.selfUbFormat)
-  //   setBossUbFormat(result.bossUbFormat)
-  //   setFooterFormat(result.footerFormat)
-  //   setMinConfig(result.minConfig)
-  //   setSecConfig(result.secConfig)
-  // }
+  const [shareURL, setShareURL] = useState('')
 
   const [formattedTL, setFormattedTL] = useState('')
   useEffect(() => {
@@ -124,17 +98,30 @@ const TabTest: VFC = () => {
 
   // マウント時に各種設定を初期化する
   useEffect(() => {
-    setHeaderFormat(DEFAULT_FORMAT.headerFormat)
-    setSelfUbFormat(DEFAULT_FORMAT.selfUbFormat)
-    setBossUbFormat(DEFAULT_FORMAT.bossUbFormat)
-    setFooterFormat(DEFAULT_FORMAT.footerFormat)
-    setCharacterNameConvs(DEFAULT_FORMAT.characterNameConvs)
+    if (stringfiedFormatStyleObj !== '') {
+      const formatStyleObj = JSON.parse(stringfiedFormatStyleObj) as FormatStyle
+      setTl(formatStyleObj.tl)
+      setHeaderFormat(formatStyleObj.headerFormat)
+      setSelfUbFormat(formatStyleObj.selfUbFormat)
+      setBossUbFormat(formatStyleObj.bossUbFormat)
+      setFooterFormat(formatStyleObj.footerFormat)
+      setCharacterNameConvs(formatStyleObj.characterNameConvs)
+      setMinConfig(formatStyleObj.minConfig)
+      setSecConfig(formatStyleObj.secConfig)
+      setNamePadding(formatStyleObj.namePadding)
+      setShareURL(paramId)
+    } else {
+      setTl(DEFAULT_FORMAT.tl)
+      setHeaderFormat(DEFAULT_FORMAT.headerFormat)
+      setSelfUbFormat(DEFAULT_FORMAT.selfUbFormat)
+      setBossUbFormat(DEFAULT_FORMAT.bossUbFormat)
+      setFooterFormat(DEFAULT_FORMAT.footerFormat)
+      setCharacterNameConvs(DEFAULT_FORMAT.characterNameConvs)
+    }
   }, [])
 
   const commonTabs = (
     <>
-      {/* <button onClick={handleStoreFormatStyle}>aaa</button>
-      <button onClick={handleFetchFormatStyle}>bbb</button> */}
       <TabBar
         activeTab={activeTab}
         onChange={(tabName: 'tl' | 'format' | 'name' | 'config' | 'output') => {
@@ -212,9 +199,37 @@ const TabTest: VFC = () => {
     </main>
   )
 
+  const handleClickShare = async () => {
+    const id = await genIdForHash({
+      tl,
+      characterNameConvs,
+      headerFormat,
+      selfUbFormat,
+      bossUbFormat,
+      footerFormat,
+      minConfig,
+      secConfig,
+      namePadding,
+    })
+    if (id !== shareURL) {
+      storeFormatStyle({
+        tl,
+        characterNameConvs,
+        headerFormat,
+        selfUbFormat,
+        bossUbFormat,
+        footerFormat,
+        minConfig,
+        secConfig,
+        namePadding,
+      })
+      setShareURL(id)
+    }
+  }
+
   return (
     <>
-      <Header />
+      <Header handleClickShare={handleClickShare} url={shareURL} />
       {isMobile && (
         <main className="flex flex-col h-full border-t border-gray-200">
           {commonTabs}
@@ -244,4 +259,26 @@ const TabTest: VFC = () => {
     </>
   )
 }
-export default TabTest
+export default Home
+
+export const getServerSideProps: ({
+  params,
+}: {
+  params: { slug: string[] }
+}) => Promise<{
+  props: { stringfiedFormatStyleObj: string; paramId: string }
+}> = async ({ params }) => {
+  if (params.slug && params.slug.length === 1) {
+    // URLに引数が1つだけあるならDBから初期値を引きに行く
+    const result = await fetchFormatStyle(params.slug[0])
+    if (result) {
+      return {
+        props: {
+          stringfiedFormatStyleObj: JSON.stringify(result),
+          paramId: params.slug[0],
+        },
+      }
+    }
+  }
+  return { props: { stringfiedFormatStyleObj: '', paramId: '' } }
+}

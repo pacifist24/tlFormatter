@@ -15,7 +15,8 @@ if (firebase.apps.length === 0) {
   firebase.initializeApp(firebaseConfig)
 }
 
-type FormatStyle = {
+export type FormatStyle = {
+  tl: string
   characterNameConvs: { [key: string]: string }
   headerFormat: string
   selfUbFormat: string
@@ -23,12 +24,39 @@ type FormatStyle = {
   footerFormat: string
   minConfig: number
   secConfig: number
+  namePadding: string
 }
 
 // オブジェクトのハッシュ化
 export const genIdForHash: (formatStyleObj: FormatStyle) => Promise<string> =
   async (formatStyleObj) => {
-    const stringfiedObj = JSON.stringify(formatStyleObj)
+    // オブジェクトの文字列化(JSON.stringfyではオブジェクト内の順番が壊れるため失敗する)
+    const sortedCharacterNameConvs2Str = Object.entries(
+      formatStyleObj.characterNameConvs
+    )
+      .sort()
+      .join(',')
+
+    const stringfiedObj =
+      ',' +
+      formatStyleObj.tl +
+      '}{' +
+      formatStyleObj.headerFormat +
+      '}{' +
+      formatStyleObj.selfUbFormat +
+      '}{' +
+      formatStyleObj.bossUbFormat +
+      '}{' +
+      formatStyleObj.footerFormat +
+      '}{' +
+      formatStyleObj.minConfig +
+      '}{' +
+      formatStyleObj.secConfig +
+      '}{' +
+      formatStyleObj.namePadding +
+      '}{' +
+      sortedCharacterNameConvs2Str
+
     const uint8 = new TextEncoder().encode(stringfiedObj)
     const digest = await crypto.subtle.digest('SHA-1', uint8)
     return Array.from(new Uint8Array(digest))
