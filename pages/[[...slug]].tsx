@@ -63,6 +63,8 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   }
 
   const [shareURL, setShareURL] = useState('')
+  const [copyShareURLSnackBarOpen, setCopyShareURLSnackBarOpen] =
+    useState(false)
 
   const [formattedTL, setFormattedTL] = useState('')
   useEffect(() => {
@@ -229,7 +231,12 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
 
   return (
     <>
-      <Header handleClickShare={handleClickShare} url={shareURL} />
+      <Header
+        handleClickShare={handleClickShare}
+        url={shareURL}
+        snackBarOpen={copyShareURLSnackBarOpen}
+        handleChangeSnackBarOpen={setCopyShareURLSnackBarOpen}
+      />
       {isMobile && (
         <main className="flex flex-col h-full border-t border-gray-200">
           {commonTabs}
