@@ -24,7 +24,10 @@ export default function App({ Component, pageProps }): JSX.Element {
           content="アプリから出力したTLに整形します、整形のスタイルはカスタマイズ可能です。"
         />
         <meta property="og:site_name" content="TLFormatter" />
-        <meta property="og:image" content="../public/favicon.ico" />
+        <meta
+          property="og:image"
+          content="https://tl-formatter.vercel.app/public/favicon.ico"
+        />
       </Head>
       <ThemeProvider theme={theme}>
         <Component {...pageProps} />
