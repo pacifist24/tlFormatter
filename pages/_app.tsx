@@ -26,7 +26,7 @@ export default function App({ Component, pageProps }): JSX.Element {
         <meta property="og:site_name" content="TLFormatter" />
         <meta
           property="og:image"
-          content="https://tl-formatter.vercel.app/public/favicon.ico"
+          content="https://photos.google.com/photo/AF1QipPyg8a_IJKnt0J1JIAnJRTIaH-X0pfBvlcxu454"
         />
       </Head>
       <ThemeProvider theme={theme}>
