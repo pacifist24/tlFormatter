@@ -26,7 +26,7 @@ export default function App({ Component, pageProps }): JSX.Element {
         <meta property="og:site_name" content="TLFormatter" />
         <meta
           property="og:image"
-          content="https://photos.google.com/photo/AF1QipPyg8a_IJKnt0J1JIAnJRTIaH-X0pfBvlcxu454"
+          content="https://photos.app.goo.gl/xkKg8NKhWhNSsp2B9"
         />
       </Head>
       <ThemeProvider theme={theme}>
