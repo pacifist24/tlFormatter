@@ -21,12 +21,12 @@ export default function App({ Component, pageProps }): JSX.Element {
         <meta property="og:title" content="TLFormatter" />
         <meta
           property="og:description"
-          content="アプリから出力したTLに整形します、整形のスタイルはカスタマイズ可能です。"
+          content="アプリから出力したTLを整形します、整形のスタイルはカスタマイズ可能です。"
         />
         <meta property="og:site_name" content="TLFormatter" />
         <meta
           property="og:image"
-          content="https://photos.app.goo.gl/xkKg8NKhWhNSsp2B9"
+          content="https://tl-formatter.vercel.app/ogimg.png"
         />
       </Head>
       <ThemeProvider theme={theme}>
