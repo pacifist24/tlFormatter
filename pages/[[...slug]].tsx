@@ -82,6 +82,20 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
             namePadding
           )
         )
+        localStorage.setItem(
+          'stringfiedFormatStyleObj',
+          JSON.stringify({
+            tl,
+            headerFormat,
+            selfUbFormat,
+            bossUbFormat,
+            footerFormat,
+            characterNameConvs,
+            minConfig,
+            secConfig,
+            namePadding,
+          })
+        )
       } catch (e) {
         setFormattedTL('TL解析失敗しました')
       }
@@ -101,6 +115,7 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   // マウント時に各種設定を初期化する
   useEffect(() => {
     if (stringfiedFormatStyleObj !== '') {
+      // URLからDBを探してヒットしていたらそれを設定
       const formatStyleObj = JSON.parse(stringfiedFormatStyleObj) as FormatStyle
       setTl(formatStyleObj.tl)
       setHeaderFormat(formatStyleObj.headerFormat)
@@ -112,7 +127,22 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       setSecConfig(formatStyleObj.secConfig)
       setNamePadding(formatStyleObj.namePadding)
       setShareURL(paramId)
+    } else if (localStorage.getItem('stringfiedFormatStyleObj')) {
+      // ローカルストレージに設定があればそれを設定
+      const localFormatStyle = JSON.parse(
+        localStorage.getItem('stringfiedFormatStyleObj')
+      ) as FormatStyle
+      setTl(localFormatStyle.tl)
+      setHeaderFormat(localFormatStyle.headerFormat)
+      setSelfUbFormat(localFormatStyle.selfUbFormat)
+      setBossUbFormat(localFormatStyle.bossUbFormat)
+      setFooterFormat(localFormatStyle.footerFormat)
+      setCharacterNameConvs(localFormatStyle.characterNameConvs)
+      setMinConfig(localFormatStyle.minConfig)
+      setSecConfig(localFormatStyle.secConfig)
+      setNamePadding(localFormatStyle.namePadding)
     } else {
+      // 初回来場者にはdefault値を設定
       setTl(DEFAULT_FORMAT.tl)
       setHeaderFormat(DEFAULT_FORMAT.headerFormat)
       setSelfUbFormat(DEFAULT_FORMAT.selfUbFormat)

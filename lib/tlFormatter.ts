@@ -189,10 +189,9 @@ export const formatTL = (
     }
 
     if (ub.name === tlData.bossName) {
-      timelineOutput += bossUbTemplateText.replace(
-        '<UB使用時秒数>',
-        timeNum2Str(ub.time - lessTime).substr(1)
-      )
+      timelineOutput += bossUbTemplateText
+        .replace('<UB使用時秒数>', timeNum2Str(ub.time - lessTime).substr(1))
+        .replace('<UB使用キャラ名>', ub.name)
     } else {
       timelineOutput += characterUbTemplateText
         .replace('<UB使用時秒数>', timeNum2Str(ub.time - lessTime).substr(1))
