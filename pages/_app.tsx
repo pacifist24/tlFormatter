@@ -26,7 +26,7 @@ export default function App({ Component, pageProps }): JSX.Element {
         <meta property="og:site_name" content="TLFormatter" />
         <meta
           property="og:image"
-          content="https://tl-formatter.vercel.app/ogimg.png"
+          content="https://firebasestorage.googleapis.com/v0/b/tlformatter.appspot.com/o/favicon.png?alt=media&token=61faefec-64fd-4438-ad7b-5e7ada7354f3"
         />
       </Head>
       <ThemeProvider theme={theme}>
