@@ -15,7 +15,7 @@ export default function App({ Component, pageProps }): JSX.Element {
   return (
     <>
       <Head>
-        <title>hello</title>
+        <title>TLFormatter</title>
         <meta property="og:url" content="https://tl-formatter.vercel.app/" />
         <meta property="og:type" content="website" />
         <meta property="og:title" content="TLFormatter" />
