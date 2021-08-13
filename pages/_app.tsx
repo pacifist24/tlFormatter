@@ -24,7 +24,7 @@ const App: VFC<{ Component: any; pageProps: any }> = ({
       <meta property="og:title" content="TLFormatter" />
       <meta
         property="og:description"
-        content="アプリから出力したTLを整形します。整形のスタイルはカスタマイズできます。カスタマイズしたスタイルはURLで共有することができます(PC版のみ)。"
+        content="アプリから出力したTLを整形します。整形のスタイルはカスタマイズできます。カスタマイズしたスタイルはShareボタンで出力したURLで共有することができます。"
       />
       <meta property="og:site_name" content="TLFormatter" />
       <meta property="og:image" content={process.env.ogpImageUrl} />

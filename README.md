@@ -1,33 +1,36 @@
-# NextJS Typescript Boilerplate
+# TLFormatter
 
-Bootstrap a developer-friendly NextJS app configured with:
+本アプリ([TLFormatter](https://tl-formatter.vercel.app/))はプリコネアプリから出力したTLを整形するためのアプリです。整形のフォーマットはカスタマイズが可能です。カスタマイズしたフォーマットはShareボタンにより出力されたURLで共有することが可能です。
 
-- [Typescript](https://www.typescriptlang.org/)
-- Linting with [ESLint](https://eslint.org/)
-- Formatting with [Prettier](https://prettier.io/)
-- Linting, typechecking and formatting on by default using [`husky`](https://github.com/typicode/husky) for commit hooks
-- Testing with [Jest](https://jestjs.io/) and [`react-testing-library`](https://testing-library.com/docs/react-testing-library/intro)
+## TLタブ
 
-## Preview
+プリコネアプリから出力したTLをここに**直接**貼りつけてください
 
-Preview the example live on [StackBlitz](http://stackblitz.com/):
+## Formatタブ
 
-[![Open in StackBlitz](https://developer.stackblitz.com/img/open_in_stackblitz.svg)](https://stackblitz.com/github/vercel/next.js/tree/canary/examples/with-typescript-eslint-jest)
+ここにTLのフォーマットを記載してください。使えるタブは以下の通りです。
 
-## Deploy your own
+<モード> 模擬戦かクランモードか (例)クランモード
+<段階> 何段階目か(例)5
+<ボス名> ボスの名前 (例)ゴブリングレート
+<ダメージ> 万単位ダメージの値 (例)3270万
+<詳細与ダメージ> ダメージの値(例)32702296
+<所要秒数> バトルにかかった秒数 (例)90
+<バトル日時> バトル開始日時 (例)2021/06/29 22:40
+<キャラn名前> 編成キャラの名前 (例)アカリ
+<キャラn星> 編成キャラの星 (例)6
+<キャラnランク> 編成キャラのランク (例)2
+<キャラnレベル> 編成キャラのレベル (例)205
+<開始秒数> バトル開始時の秒数 (例)1:30
+<終了秒数> バトル終了時の秒数 (例)0:00
+<UB使用時秒数> UBを使った時間 (例)1:30
+<UB使用キャラ名>UBを使ったキャラの名前 (例)サレン
 
-Deploy the example using [Vercel](https://vercel.com?utm_source=github&utm_medium=readme&utm_campaign=next-example):
+## Nameタブ
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/git/external?repository-url=https://github.com/vercel/next.js/tree/canary/examples/with-typescript-eslint-jest&project-name=with-typescript-eslint-jest&repository-name=with-typescript-eslint-jest)
+ここにキャラクターの省略名の変換規則を記載します
+(例)サレン（サマー）⇒水サレ
 
-## How to use
+## Shareボタン
 
-Execute [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app) with [npm](https://docs.npmjs.com/cli/init) or [Yarn](https://yarnpkg.com/lang/en/docs/cli/create/) to bootstrap the example:
-
-```bash
-npx create-next-app --example with-typescript-eslint-jest with-typescript-eslint-jest-app
-# or
-yarn create next-app --example with-typescript-eslint-jest with-typescript-eslint-jest-app
-```
-
-Deploy it to the cloud with [Vercel](https://vercel.com/new?utm_source=github&utm_medium=readme&utm_campaign=next-example) ([Documentation](https://nextjs.org/docs/deployment)).
+Shareボタンを押すとその時点でTL、Format、Name、Configタブに記述している内容をサーバーに保存します。出力されたURLにアクセスすると保存した内容と同じページが表示されます。この機能を用いることでTLの記述スタイルの共有が可能になります。<span style="color: red; ">※TLがサーバーに保存されるので外部に流出したくないTLを貼った状態でShareボタンを使うのは非推奨です。</span>
