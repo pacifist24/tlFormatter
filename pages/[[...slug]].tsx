@@ -7,7 +7,7 @@ import CharacterNameConverterTab from '../components/CharacterNameConverterTab'
 import FormatTab from '../components/FormatTab'
 import ConfigTab from '../components/Config'
 import { formatTL } from '../lib/tlFormatter'
-import { DEFAULT_FORMAT } from '../lib/format'
+import { DEFAULT_FORMAT } from '../lib/formatConstants'
 import { isMobile } from 'react-device-detect'
 import TLOutputTab from '../components/TLOutputTab'
 import {
@@ -26,8 +26,6 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   >('tl')
   const [tl, setTl] = useState('')
 
-  const [nameFromNameConv, setNameFromNameConv] = useState('')
-  const [nameToNameConv, setNameToNameConv] = useState('')
   const [characterNameConvs, setCharacterNameConvs] = useState<{
     [key: string]: string
   }>()
@@ -38,13 +36,14 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     setCharacterNameConvs(clone)
   }
 
-  const handleAddNameConv = (nameFrom: string, nameTo: string) => () => {
-    const clone = { ...characterNameConvs }
-    clone[nameFrom] = nameTo
-    setCharacterNameConvs(clone)
-    setNameFromNameConv('')
-    setNameToNameConv('')
-  }
+  const handleAddNameConv =
+    (nameFrom: string, nameTo: string, postProc: () => void) => () => {
+      const clone = { ...characterNameConvs }
+      delete clone[nameFrom]
+      const addedNameConv = { [nameFrom]: nameTo }
+      setCharacterNameConvs({ ...addedNameConv, ...clone })
+      postProc()
+    }
 
   const [headerFormat, setHeaderFormat] = useState('')
   const [selfUbFormat, setSelfUbFormat] = useState('')
@@ -111,6 +110,7 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     namePadding,
   ])
 
+  // デフォルト値にTL,Format,Name,Config全ての設定をデフォルトに戻す
   const setDefault = () => {
     setTl(DEFAULT_FORMAT.tl)
     setHeaderFormat(DEFAULT_FORMAT.headerFormat)
@@ -174,10 +174,6 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           characterNameConvs={characterNameConvs}
           handleDelete={handleDeleteNameConv}
           handleAdd={handleAddNameConv}
-          nameFrom={nameFromNameConv}
-          setNameFrom={setNameFromNameConv}
-          nameTo={nameToNameConv}
-          setNameTo={setNameToNameConv}
         />
       )}
       {activeTab === 'format' && (

@@ -1,4 +1,4 @@
-import { VFC } from 'react'
+import { VFC, useState } from 'react'
 import Chip from './Chip'
 import TextField from '@material-ui/core/TextField'
 import clsx from 'clsx'
@@ -6,22 +6,20 @@ import clsx from 'clsx'
 type Props = {
   characterNameConvs: { [key: string]: string }
   handleDelete: (nameFrom: string) => () => void
-  handleAdd: (nameFrom: string, nameTo: string) => () => void
-  nameFrom: string
-  setNameFrom: (val: string) => void
-  nameTo: string
-  setNameTo: (val: string) => void
+  handleAdd: (
+    nameFrom: string,
+    nameTo: string,
+    postProc: () => void
+  ) => () => void
 }
 
 const CharacterNameConverter: VFC<Props> = ({
   characterNameConvs,
   handleDelete,
   handleAdd,
-  nameFrom,
-  setNameFrom,
-  nameTo,
-  setNameTo,
 }) => {
+  const [nameFrom, setNameFrom] = useState('')
+  const [nameTo, setNameTo] = useState('')
   return (
     <>
       <div className="flex items-center justify-center mt-8">
@@ -67,7 +65,10 @@ const CharacterNameConverter: VFC<Props> = ({
               ),
             }
           )}
-          onClick={handleAdd(nameFrom, nameTo)}
+          onClick={handleAdd(nameFrom, nameTo, () => {
+            setNameFrom('')
+            setNameTo('')
+          })}
           disabled={nameFrom === '' || nameTo === ''}
         >
           <svg
