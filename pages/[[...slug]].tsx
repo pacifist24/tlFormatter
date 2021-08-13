@@ -97,7 +97,9 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           })
         )
       } catch (e) {
-        setFormattedTL('TL解析失敗しました')
+        setFormattedTL(
+          'TL解析に失敗しました。プリコネアプリから出力されたTLを直接貼りつけてください。'
+        )
       }
     }
   }, [

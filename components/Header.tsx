@@ -42,11 +42,9 @@ const Header: VFC<Props> = ({
             <div className="flex-initial">
               <button
                 className="group flex-auto min-w-0 flex items-center space-x-1.5 text-sm leading-5 font-medium text-gray-500 hover:text-gray-900 ml-1"
-                title={'https://tl-formatter.vercel.app/' + url}
+                title={process.env.siteUrl + url}
                 onClick={() => {
-                  navigator.clipboard.writeText(
-                    'https://tl-formatter.vercel.app/' + url
-                  )
+                  navigator.clipboard.writeText(process.env.siteUrl + url)
                   handleChangeSnackBarOpen(true)
                 }}
               >
