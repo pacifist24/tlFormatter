@@ -24,11 +24,11 @@ const ConfigTab: VFC<Props> = ({
   return (
     <>
       <div>
-        <h1 className="text-lg font-medium mt-3 mx-3">バトル開始時間変換</h1>
-        <p className="text-sm mx-5 mt-2">
+        <h1 className="mx-3 mt-3 text-lg font-medium">バトル開始時間変換</h1>
+        <p className="mx-5 mt-2 text-sm">
           持ち越しのためTLの記述時間をずらしたい場合の設定
         </p>
-        <div className="flex ml-10 mt-5 items-center">
+        <div className="flex items-center mt-5 ml-10">
           <TextField
             label="分"
             variant="outlined"
@@ -40,7 +40,7 @@ const ConfigTab: VFC<Props> = ({
             value={minutes}
             onChange={(e) => handleChangeMin(parseInt(e.target.value))}
             inputProps={{ min: 0, max: 1 }}
-            className="w-20 mt-10 pl-2"
+            className="w-20 pl-2 mt-10"
           />
           <span className="mx-2">分</span>
           <TextField
@@ -57,19 +57,19 @@ const ConfigTab: VFC<Props> = ({
               min: minutes === 1 ? 0 : 21,
               max: minutes === 1 ? 30 : 59,
             }}
-            className="w-20 mt-10 pl-2"
+            className="w-20 pl-2 mt-10"
           />
           <span className="mx-2">秒</span>
         </div>
 
-        <h1 className="text-lg font-medium mt-6 mx-3">パディング</h1>
-        <p className="text-sm mx-5 mt-2">
+        <h1 className="mx-3 mt-6 text-lg font-medium">パディング</h1>
+        <p className="mx-5 mt-2 text-sm">
           名前の長さが最大のキャラクターに合わせて
           <br />
           名前の短いキャラの前方もしくは後方に空白を挿入する
           <br />
         </p>
-        <div className="flex ml-10 mt-5 items-center">
+        <div className="flex items-center mt-5 ml-10">
           <FormControl component="fieldset">
             <RadioGroup
               value={namePadding}

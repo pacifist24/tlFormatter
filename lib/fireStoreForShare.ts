@@ -65,6 +65,7 @@ export const genIdForHash: (formatStyleObj: FormatStyle) => Promise<string> =
       .substr(0, 10)
   }
 
+// フォーマットスタイルの設定をfirestoreに保存する
 export const storeFormatStyle: (formatStyleObj: FormatStyle) => void = async (
   formatStyleObj
 ) => {
@@ -73,6 +74,7 @@ export const storeFormatStyle: (formatStyleObj: FormatStyle) => void = async (
   db.collection(COLLECTION_NAME).doc(hash).set(formatStyleObj)
 }
 
+// フォーマットスタイルの設定をfirestoreから取り出す
 export const fetchFormatStyle: (id: string) => Promise<FormatStyle> = async (
   id: string
 ) => {

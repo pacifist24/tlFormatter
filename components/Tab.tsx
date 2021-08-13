@@ -6,7 +6,7 @@ const TabBar: VFC<{
   activeTab: 'tl' | 'format' | 'name' | 'config' | 'usage' | 'output'
   onChange: (param: string) => void
 }> = ({ activeTab, onChange }) => (
-  <div className="flex space-x-5 pl-5 pr-4 border-b">
+  <div className="flex pl-5 pr-4 border-b space-x-5">
     <TabButton isActive={activeTab === 'tl'} onClick={() => onChange('tl')}>
       TL
     </TabButton>

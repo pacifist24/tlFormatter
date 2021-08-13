@@ -10,7 +10,7 @@ import ConfigTab from '../components/Config'
 import { formatTL } from '../lib/tlFormatter'
 import { DEFAULT_FORMAT } from '../lib/format'
 import { isMobile } from 'react-device-detect'
-import Snackbar from '@material-ui/core/Snackbar'
+import TLOutputTab from '../components/TLOutputTab'
 import {
   FormatStyle,
   genIdForHash,
@@ -63,8 +63,6 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   }
 
   const [shareURL, setShareURL] = useState('')
-  const [copyShareURLSnackBarOpen, setCopyShareURLSnackBarOpen] =
-    useState(false)
 
   const [formattedTL, setFormattedTL] = useState('')
   useEffect(() => {
@@ -83,7 +81,7 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           )
         )
         localStorage.setItem(
-          'stringfiedFormatStyleObj',
+          'stringfiedFormatStyleObj' + process.env.version,
           JSON.stringify({
             tl,
             headerFormat,
@@ -129,10 +127,12 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       setSecConfig(formatStyleObj.secConfig)
       setNamePadding(formatStyleObj.namePadding)
       setShareURL(paramId)
-    } else if (localStorage.getItem('stringfiedFormatStyleObj')) {
+    } else if (
+      localStorage.getItem('stringfiedFormatStyleObj' + process.env.version)
+    ) {
       // ローカルストレージに設定があればそれを設定
       const localFormatStyle = JSON.parse(
-        localStorage.getItem('stringfiedFormatStyleObj')
+        localStorage.getItem('stringfiedFormatStyleObj' + process.env.version)
       ) as FormatStyle
       setTl(localFormatStyle.tl)
       setHeaderFormat(localFormatStyle.headerFormat)
@@ -199,40 +199,6 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     </>
   )
 
-  const [copyOutputTLSnackBarOpen, setCopyOutputTLSnackBarOpen] =
-    useState(false)
-
-  const handleCopyOutputTL = () => {
-    navigator.clipboard.writeText(formattedTL)
-    setCopyOutputTLSnackBarOpen(true)
-  }
-
-  const output = (
-    <main className="flex flex-col h-full border-t border-l border-gray-200">
-      <button
-        className="h-screen"
-        onClick={handleCopyOutputTL}
-        title="出力TLをコピー"
-      >
-        <textarea
-          className="cursor-pointer resize-none h-full w-full focus:outline-none p-2"
-          value={formattedTL}
-          readOnly
-        />
-      </button>
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'right',
-        }}
-        onClose={() => setCopyOutputTLSnackBarOpen(false)}
-        open={copyOutputTLSnackBarOpen}
-        autoHideDuration={1500}
-        message="出力TLをコピーしました"
-      />
-    </main>
-  )
-
   const handleClickShare = async () => {
     const id = await genIdForHash({
       tl,
@@ -263,24 +229,11 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
 
   return (
     <>
-      <Header
-        handleClickShare={handleClickShare}
-        url={shareURL}
-        snackBarOpen={copyShareURLSnackBarOpen}
-        handleChangeSnackBarOpen={setCopyShareURLSnackBarOpen}
-      />
+      <Header handleClickShare={handleClickShare} url={shareURL} />
       {isMobile && (
         <main className="flex flex-col h-full border-t border-gray-200">
           {commonTabs}
-          {activeTab === 'output' && (
-            <main className="flex flex-col h-full border-t border-l border-gray-200">
-              <textarea
-                className="resize-none h-screen w-full focus:outline-none p-2"
-                value={formattedTL}
-                readOnly
-              />
-            </main>
-          )}
+          {activeTab === 'output' && <TLOutputTab tl={formattedTL} />}
         </main>
       )}
       {!isMobile && (
@@ -292,7 +245,7 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           <main className="flex flex-col h-full border-t border-gray-200">
             {commonTabs}
           </main>
-          {output}
+          <TLOutputTab tl={formattedTL} />
         </SplitPane>
       )}
     </>

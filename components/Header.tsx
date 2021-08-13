@@ -1,25 +1,21 @@
 import { VFC } from 'react'
 import Snackbar from '@material-ui/core/Snackbar'
 import { isMobile } from 'react-device-detect'
+import { useState } from 'react'
 
 type Props = {
   handleClickShare: () => void
   url: string
-  snackBarOpen: boolean
-  handleChangeSnackBarOpen: (val: boolean) => void
 }
 
-const Header: VFC<Props> = ({
-  handleClickShare,
-  url,
-  snackBarOpen,
-  handleChangeSnackBarOpen,
-}) => {
+const Header: VFC<Props> = ({ handleClickShare, url }) => {
+  const [snackBarOpen, setSnackBarOpen] = useState(false)
+
   return (
-    <header className="flex relative z-10 h-16 top-0 left-0 flex-none py-3 pl-5 items-center space-x-4">
-      <div className="flex-initial text-2xl font-bold font-mono">
+    <header className="relative top-0 left-0 z-10 flex items-center flex-none h-16 py-3 pl-5 space-x-4">
+      <div className="flex-initial font-mono text-2xl font-bold">
         TL
-        <span className="italic text-turquoise-500 text-lg ml-1 tracking-tight">
+        <span className="ml-1 text-lg italic tracking-tight text-turquoise-500">
           FORMATTER
         </span>
       </div>
@@ -27,7 +23,7 @@ const Header: VFC<Props> = ({
         <>
           <div className="flex-initial">
             <button
-              className="relative flex-none rounded-md border border-gray-200 text-sm font-medium leading-5 py-4 px-8 focus:border-turquoise-500 focus:outline-none focus:shadow-outline hover:bg-gray-50 ml-1"
+              className="relative flex-none px-8 py-4 ml-1 text-sm font-medium border border-gray-200 rounded-md leading-5 focus:border-turquoise-500 focus:outline-none focus:shadow-outline hover:bg-gray-50"
               onClick={(e) => {
                 handleClickShare()
                 e.currentTarget.blur()
@@ -41,11 +37,11 @@ const Header: VFC<Props> = ({
           {url && (
             <div className="flex-initial">
               <button
-                className="group flex-auto min-w-0 flex items-center space-x-1.5 text-sm leading-5 font-medium text-gray-500 hover:text-gray-900 ml-1"
+                className="flex items-center flex-auto min-w-0 ml-1 text-sm font-medium text-gray-500 group space-x-1.5 leading-5 hover:text-gray-900"
                 title={process.env.siteUrl + url}
                 onClick={() => {
                   navigator.clipboard.writeText(process.env.siteUrl + url)
-                  handleChangeSnackBarOpen(true)
+                  setSnackBarOpen(true)
                 }}
               >
                 <span className="truncate">{'/' + url}</span>
@@ -68,7 +64,7 @@ const Header: VFC<Props> = ({
               vertical: 'top',
               horizontal: 'center',
             }}
-            onClose={() => handleChangeSnackBarOpen(false)}
+            onClose={() => setSnackBarOpen(false)}
             open={snackBarOpen}
             autoHideDuration={1000}
             message="URLをコピーしました"

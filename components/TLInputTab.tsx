@@ -6,7 +6,7 @@ const TLInputTab: VFC<{
 }> = ({ tl, onChange }) => (
   <>
     <textarea
-      className="resize-none h-screen w-full focus:outline-none p-2"
+      className="w-full h-screen p-2 resize-none focus:outline-none"
       value={tl}
       onChange={(e) => {
         onChange(e.target.value)
