@@ -10,14 +10,17 @@ import { formatTL } from '../lib/tlFormatter'
 import { DEFAULT_FORMAT } from '../lib/formatConstants'
 import { isMobile } from 'react-device-detect'
 import TLOutputTab from '../components/TLOutputTab'
+import Error from 'next/error'
+
 import {
   FormatStyle,
   genIdForHash,
   storeFormatStyle,
   fetchFormatStyle,
 } from '../lib/fireStoreForShare'
+import { GetServerSideProps } from 'next'
 
-const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
+const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   stringfiedFormatStyleObj,
   paramId,
 }) => {
@@ -254,15 +257,26 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     </>
   )
 }
+
+const Home: VFC<{
+  stringfiedFormatStyleObj: string
+  paramId: string
+  errorCode?: number
+}> = ({ stringfiedFormatStyleObj, paramId, errorCode }) => {
+  if (errorCode) {
+    return <Error statusCode={errorCode} />
+  }
+  return (
+    <Main
+      stringfiedFormatStyleObj={stringfiedFormatStyleObj}
+      paramId={paramId}
+    />
+  )
+}
+
 export default Home
 
-export const getServerSideProps: ({
-  params,
-}: {
-  params: { slug: string[] }
-}) => Promise<{
-  props: { stringfiedFormatStyleObj: string; paramId: string }
-}> = async ({ params }) => {
+export const getServerSideProps: GetServerSideProps = async ({ params }) => {
   if (params.slug && params.slug.length === 1) {
     // URLに引数が1つだけあるならDBから初期値を引きに行く
     const result = await fetchFormatStyle(params.slug[0])
@@ -272,6 +286,10 @@ export const getServerSideProps: ({
           stringfiedFormatStyleObj: JSON.stringify(result),
           paramId: params.slug[0],
         },
+      }
+    } else {
+      return {
+        props: { stringfiedFormatStyleObj: '', paramId: '', errorCode: 404 },
       }
     }
   }
