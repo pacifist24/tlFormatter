@@ -1,9 +1,16 @@
-import { VFC } from 'react'
+import { VFC, useState } from 'react'
 import { TextField } from '@material-ui/core'
 import Radio from '@material-ui/core/Radio'
 import RadioGroup from '@material-ui/core/RadioGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormControl from '@material-ui/core/FormControl'
+import Button from '@material-ui/core/Button'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogTitle from '@material-ui/core/DialogTitle'
+
 type Props = {
   minutes: number
   handleChangeMin: (val: number) => void
@@ -11,6 +18,7 @@ type Props = {
   handleChangeSec: (val: number) => void
   namePadding: string
   handleChangeNamePadding: (val: string) => void
+  handleResetAll: () => void
 }
 
 const ConfigTab: VFC<Props> = ({
@@ -20,7 +28,9 @@ const ConfigTab: VFC<Props> = ({
   handleChangeSec,
   namePadding,
   handleChangeNamePadding,
+  handleResetAll,
 }) => {
+  const [open, setOpen] = useState(false)
   return (
     <>
       <div>
@@ -94,6 +104,58 @@ const ConfigTab: VFC<Props> = ({
             </RadioGroup>
           </FormControl>
         </div>
+      </div>
+      <h1 className="mx-3 mt-6 text-lg font-medium">初期化</h1>
+      <p className="mx-5 mt-2 text-sm">
+        TL、Format、Name、Configタブに記述された
+        <br />
+        すべての設定をデフォルト値に戻す
+        <br />
+      </p>
+      <div className="flex items-center mt-5 ml-10">
+        <Button
+          variant="contained"
+          onClick={() => {
+            setOpen(true)
+          }}
+        >
+          初期化
+        </Button>
+        <Dialog
+          open={open}
+          onClose={() => {
+            setOpen(false)
+          }}
+          aria-labelledby="alert-dialog-title"
+          aria-describedby="alert-dialog-description"
+        >
+          <DialogTitle id="alert-dialog-title">{'初期化の確認'}</DialogTitle>
+          <DialogContent>
+            <DialogContentText id="alert-dialog-description">
+              TL、Format、Name、Configタブに記述されたすべての設定がデフォルト値にリセットされます。操作を続行しますか？
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => {
+                setOpen(false)
+              }}
+              color="primary"
+              autoFocus
+            >
+              キャンセル
+            </Button>
+            <Button
+              onClick={() => {
+                handleResetAll()
+                setOpen(false)
+              }}
+              color="primary"
+            >
+              続行
+            </Button>
+          </DialogActions>
+        </Dialog>
       </div>
     </>
   )

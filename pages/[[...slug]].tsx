@@ -1,5 +1,4 @@
-import { useState, useEffect } from 'react'
-import { VFC } from 'react'
+import { VFC, useState, useEffect } from 'react'
 import TabBar from '../components/Tab'
 import SplitPane from 'react-split-pane'
 import Header from '../components/Header'
@@ -112,6 +111,18 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     namePadding,
   ])
 
+  const setDefault = () => {
+    setTl(DEFAULT_FORMAT.tl)
+    setHeaderFormat(DEFAULT_FORMAT.headerFormat)
+    setSelfUbFormat(DEFAULT_FORMAT.selfUbFormat)
+    setBossUbFormat(DEFAULT_FORMAT.bossUbFormat)
+    setFooterFormat(DEFAULT_FORMAT.footerFormat)
+    setCharacterNameConvs(DEFAULT_FORMAT.characterNameConvs)
+    setMinConfig(1)
+    setSecConfig(30)
+    setNamePadding('none')
+  }
+
   // マウント時に各種設定を初期化する
   useEffect(() => {
     if (stringfiedFormatStyleObj !== '') {
@@ -145,12 +156,7 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       setNamePadding(localFormatStyle.namePadding)
     } else {
       // 初回来場者にはdefault値を設定
-      setTl(DEFAULT_FORMAT.tl)
-      setHeaderFormat(DEFAULT_FORMAT.headerFormat)
-      setSelfUbFormat(DEFAULT_FORMAT.selfUbFormat)
-      setBossUbFormat(DEFAULT_FORMAT.bossUbFormat)
-      setFooterFormat(DEFAULT_FORMAT.footerFormat)
-      setCharacterNameConvs(DEFAULT_FORMAT.characterNameConvs)
+      setDefault()
     }
   }, [])
 
@@ -194,6 +200,7 @@ const Home: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           handleChangeSec={setSecConfig}
           namePadding={namePadding}
           handleChangeNamePadding={setNamePadding}
+          handleResetAll={setDefault}
         />
       )}
     </>
