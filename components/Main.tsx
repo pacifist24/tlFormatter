@@ -60,6 +60,23 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     setSecConfig(30)
   }
 
+  const handleSaveLocal = () => {
+    localStorage.setItem(
+      'stringfiedFormatStyleObj' + process.env.version,
+      JSON.stringify({
+        tl,
+        headerFormat,
+        selfUbFormat,
+        bossUbFormat,
+        footerFormat,
+        characterNameConvs,
+        minConfig,
+        secConfig,
+        namePadding,
+      })
+    )
+  }
+
   const [shareURL, setShareURL] = useState('')
 
   const [formattedTL, setFormattedTL] = useState('')
@@ -77,20 +94,6 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
             minConfig * 60 + secConfig,
             namePadding
           )
-        )
-        localStorage.setItem(
-          'stringfiedFormatStyleObj' + process.env.version,
-          JSON.stringify({
-            tl,
-            headerFormat,
-            selfUbFormat,
-            bossUbFormat,
-            footerFormat,
-            characterNameConvs,
-            minConfig,
-            secConfig,
-            namePadding,
-          })
         )
       } catch (e) {
         setFormattedTL(
@@ -121,6 +124,21 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     setMinConfig(1)
     setSecConfig(30)
     setNamePadding('none')
+
+    localStorage.setItem(
+      'stringfiedFormatStyleObj' + process.env.version,
+      JSON.stringify({
+        tl: DEFAULT_FORMAT.tl,
+        headerFormat: DEFAULT_FORMAT.headerFormat,
+        selfUbFormat: DEFAULT_FORMAT.selfUbFormat,
+        bossUbFormat: DEFAULT_FORMAT.bossUbFormat,
+        footerFormat: DEFAULT_FORMAT.footerFormat,
+        characterNameConvs: DEFAULT_FORMAT.characterNameConvs,
+        minConfig: 1,
+        secConfig: 30,
+        namePadding: 'none',
+      })
+    )
   }
 
   // マウント時に各種設定を初期化する
@@ -197,6 +215,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           namePadding={namePadding}
           handleChangeNamePadding={setNamePadding}
           handleResetAll={setDefault}
+          handleSaveLocal={handleSaveLocal}
         />
       )}
     </>

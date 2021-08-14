@@ -9,6 +9,7 @@ type Props = {
 
 const Header: VFC<Props> = ({ handleClickShare, url }) => {
   const [snackBarOpen, setSnackBarOpen] = useState(false)
+  const [shareSnackBarOpen, setShareSnackBarOpen] = useState(false)
 
   return (
     <header className="relative top-0 left-0 z-10 flex items-center flex-none h-16 py-3 pl-5 space-x-4">
@@ -24,7 +25,9 @@ const Header: VFC<Props> = ({ handleClickShare, url }) => {
           className="relative flex-none px-8 py-4 ml-1 text-sm font-medium border border-gray-200 rounded-md leading-5 focus:border-turquoise-500 focus:outline-none focus:shadow-outline hover:bg-gray-50"
           onClick={(e) => {
             handleClickShare()
+            navigator.clipboard.writeText(process.env.siteUrl + url)
             e.currentTarget.blur()
+            setShareSnackBarOpen(true)
           }}
         >
           <span className="absolute inset-0 flex items-center justify-center">
@@ -57,6 +60,16 @@ const Header: VFC<Props> = ({ handleClickShare, url }) => {
           </button>
         </div>
       )}
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+        onClose={() => setShareSnackBarOpen(false)}
+        open={shareSnackBarOpen}
+        autoHideDuration={3000}
+        message="サーバーに設定を保存し、保存先URLをコピーしました"
+      />
       <Snackbar
         anchorOrigin={{
           vertical: 'top',

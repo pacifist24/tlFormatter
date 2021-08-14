@@ -10,6 +10,7 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
+import Snackbar from '@material-ui/core/Snackbar'
 
 type Props = {
   minutes: number
@@ -19,6 +20,7 @@ type Props = {
   namePadding: string
   handleChangeNamePadding: (val: string) => void
   handleResetAll: () => void
+  handleSaveLocal: () => void
 }
 
 const ConfigTab: VFC<Props> = ({
@@ -29,8 +31,10 @@ const ConfigTab: VFC<Props> = ({
   namePadding,
   handleChangeNamePadding,
   handleResetAll,
+  handleSaveLocal,
 }) => {
   const [open, setOpen] = useState(false)
+  const [snackBarOpen, setSnackBarOpen] = useState(false)
   return (
     <>
       <div>
@@ -105,22 +109,37 @@ const ConfigTab: VFC<Props> = ({
           </FormControl>
         </div>
       </div>
-      <h1 className="mx-3 mt-6 text-lg font-medium">初期化</h1>
+      <h1 className="mx-3 mt-6 text-lg font-medium">
+        設定をローカルに保存/初期化
+      </h1>
       <p className="mx-5 mt-2 text-sm">
-        TL、Format、Name、Configタブに記述された
+        TL、Format、Name、Configタブに記述されたすべての設定を
         <br />
-        すべての設定をデフォルト値に戻す
+        ローカルに保存する/デフォルト値に戻す
         <br />
       </p>
       <div className="flex items-center mt-5 ml-10">
-        <Button
-          variant="contained"
-          onClick={() => {
-            setOpen(true)
-          }}
-        >
-          初期化
-        </Button>
+        <div className="mr-4">
+          <Button
+            variant="contained"
+            onClick={() => {
+              handleSaveLocal()
+              setSnackBarOpen(true)
+            }}
+          >
+            保存
+          </Button>
+        </div>
+        <div>
+          <Button
+            variant="contained"
+            onClick={() => {
+              setOpen(true)
+            }}
+          >
+            初期化
+          </Button>
+        </div>
         <Dialog
           open={open}
           onClose={() => {
@@ -157,6 +176,16 @@ const ConfigTab: VFC<Props> = ({
           </DialogActions>
         </Dialog>
       </div>
+      <Snackbar
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+        onClose={() => setSnackBarOpen(false)}
+        open={snackBarOpen}
+        autoHideDuration={1000}
+        message="設定をローカルに保存しました"
+      />
     </>
   )
 }
