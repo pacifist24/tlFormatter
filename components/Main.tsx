@@ -2,7 +2,7 @@ import { VFC, useState, useEffect } from 'react'
 import TabBar from './Tab'
 import SplitPane from 'react-split-pane'
 import Header from './Header'
-import TLInputTab from './TLInputTab'
+import dynamic from 'next/dynamic'
 import CharacterNameConverterTab from './CharacterNameConverterTab'
 import FormatTab from './FormatTab'
 import ConfigTab from './Config'
@@ -10,13 +10,13 @@ import { formatTL } from '../lib/tlFormatter'
 import { DEFAULT_FORMAT } from '../lib/formatConstants'
 import { isMobile } from 'react-device-detect'
 import TLOutputTab from './TLOutputTab'
-
 import {
   FormatStyle,
   genIdForHash,
   storeFormatStyle,
 } from '../lib/fireStoreForShare'
-
+// Material-UIが壊れるのでSSRできない
+const TLInputTab = dynamic(() => import('./TLInputTab'), { ssr: false })
 const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   stringfiedFormatStyleObj,
   paramId,
@@ -25,6 +25,28 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     'tl' | 'format' | 'name' | 'config' | 'output'
   >('tl')
   const [tl, setTl] = useState('')
+
+  const [mode, setMode] = useState('クラン')
+  const [phase, setPhase] = useState(5)
+  const [damage, setDamage] = useState(0)
+  const [bossName, setBossName] = useState('')
+  const [battleDate, setBattleDate] = useState('')
+  const [characters, setCharacters] = useState([
+    { lv: 1, name: '', star: 1, rank: 1, specialLv: 0, remark: '' },
+    { lv: 1, name: '', star: 1, rank: 1, specialLv: 0, remark: '' },
+    { lv: 1, name: '', star: 1, rank: 1, specialLv: 0, remark: '' },
+    { lv: 1, name: '', star: 1, rank: 1, specialLv: 0, remark: '' },
+    { lv: 1, name: '', star: 1, rank: 1, specialLv: 0, remark: '' },
+  ])
+  const [startTime, setStartTime] = useState(90)
+  const [endTime, setEndTime] = useState(0)
+  const [timeline, setTimeline] = useState<
+    { time: number; name: string; remark: string }[]
+  >([
+    { time: 90, name: '', remark: '' },
+    { time: 90, name: '', remark: '' },
+    { time: 90, name: '', remark: '' },
+  ])
 
   const [characterNameConvs, setCharacterNameConvs] = useState<{
     [key: string]: string
@@ -186,7 +208,28 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           setActiveTab(tabName)
         }}
       />
-      {activeTab === 'tl' && <TLInputTab tl={tl} onChange={setTl} />}
+      {activeTab === 'tl' && (
+        <TLInputTab
+          mode={mode}
+          setMode={setMode}
+          phase={phase}
+          setPhase={setPhase}
+          damage={damage}
+          setDamage={setDamage}
+          battleDate={battleDate}
+          setBattleDate={setBattleDate}
+          bossName={bossName}
+          setBossName={setBossName}
+          characters={characters}
+          setCharacters={setCharacters}
+          startTime={startTime}
+          setStartTime={setStartTime}
+          endTime={endTime}
+          setEndTime={setEndTime}
+          timeline={timeline}
+          setTimeline={setTimeline}
+        />
+      )}
       {activeTab === 'name' && (
         <CharacterNameConverterTab
           characterNameConvs={characterNameConvs}
