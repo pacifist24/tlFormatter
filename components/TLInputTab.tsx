@@ -39,6 +39,7 @@ const TLInputTab: VFC<{
   setTimeline: (val: { time: number; name: string; remark: string }[]) => void
   handleReadTL: (tl: string) => void
   handleReadError: () => void
+  nameConvs: { [key: string]: string }
 }> = ({
   mode,
   phase,
@@ -53,16 +54,18 @@ const TLInputTab: VFC<{
   setTimeline,
   handleReadTL,
   handleReadError,
+  nameConvs,
 }) => {
   // テスト用
-  const maxCharacterName = Math.max(
-    ...characters.map((character) => character.name.length),
-    bossName.length
+  const maxCharacterNamLength = Math.max(
+    ...characters.map(
+      (character) => (nameConvs[character.name] ?? character.name).length
+    )
   )
   return (
     <>
       <div
-        className="flex-col items-center w-full h-screen overflow-scroll"
+        className="flex-col items-center w-full h-screen pb-5 overflow-scroll"
         placeholder="アプリから取得したTLを貼りつけてください"
       >
         <div className="flex self-center justify-center mt-5">
@@ -110,13 +113,13 @@ const TLInputTab: VFC<{
             <div className="mt-2">
               {characters.map((character, index) => (
                 <div className="flex items-center mt-3 ml-5" key={index}>
-                  <span style={{ width: maxCharacterName + 'rem' }}>
-                    {character.name}
+                  <span style={{ width: maxCharacterNamLength + 'rem' }}>
+                    {nameConvs[character.name] ?? character.name}
                   </span>
                   <span className="ml-1">★{character.star}</span>
                   <span className="ml-1">Lv{character.lv}</span>
                   <span className="ml-1">RANK{character.rank}</span>
-                  <div className="ml-2">
+                  <div className="ml-4">
                     <TextField
                       label="専用LV"
                       variant="outlined"
@@ -135,7 +138,7 @@ const TLInputTab: VFC<{
                       }}
                     />
                   </div>
-                  <div className="mx-3">
+                  <div className="mx-4">
                     <TextField
                       label="コメント"
                       variant="outlined"
@@ -171,12 +174,22 @@ const TLInputTab: VFC<{
                   <span className="w-10">
                     {timeNum2Str(line.time).substr(1)}
                   </span>
-                  <span
-                    className="ml-1"
-                    style={{ width: maxCharacterName + 'rem' }}
-                  >
-                    {line.name}
-                  </span>
+                  {line.name !== bossName && (
+                    <span
+                      className="ml-1"
+                      style={{ width: maxCharacterNamLength + 1 + 'rem' }}
+                    >
+                      {nameConvs[line.name] ?? line.name}
+                    </span>
+                  )}
+                  {line.name === bossName && (
+                    <span
+                      className="ml-1 font-bold text-red-500"
+                      style={{ width: maxCharacterNamLength + 1 + 'rem' }}
+                    >
+                      {'BOSS'}
+                    </span>
+                  )}
                   <div className="flex-1 mx-3">
                     <TextField
                       label="コメント"

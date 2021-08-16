@@ -259,6 +259,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
               'TL解析に失敗しました。プリコネアプリから出力されたTLを編集せず読み込んでください。'
             )
           }}
+          nameConvs={characterNameConvs}
         />
       )}
       {activeTab === 'name' && (
