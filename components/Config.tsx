@@ -1,40 +1,25 @@
-import { VFC, useState } from 'react'
-import { TextField } from '@material-ui/core'
+import { VFC } from 'react'
 import Radio from '@material-ui/core/Radio'
 import RadioGroup from '@material-ui/core/RadioGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
 import FormControl from '@material-ui/core/FormControl'
-import Button from '@material-ui/core/Button'
-import Dialog from '@material-ui/core/Dialog'
-import DialogActions from '@material-ui/core/DialogActions'
-import DialogContent from '@material-ui/core/DialogContent'
-import DialogContentText from '@material-ui/core/DialogContentText'
-import DialogTitle from '@material-ui/core/DialogTitle'
-import Snackbar from '@material-ui/core/Snackbar'
+import { Select } from '@material-ui/core'
+import MenuItem from '@material-ui/core/MenuItem'
+import InputLabel from '@material-ui/core/InputLabel'
 
 type Props = {
-  minutes: number
-  handleChangeMin: (val: number) => void
-  seconds: number
-  handleChangeSec: (val: number) => void
+  startTime: number
+  handleChangeStartTime: (val: number) => void
   namePadding: string
   handleChangeNamePadding: (val: string) => void
-  handleResetAll: () => void
-  handleSaveLocal: () => void
 }
 
 const ConfigTab: VFC<Props> = ({
-  minutes,
-  handleChangeMin,
-  seconds,
-  handleChangeSec,
+  startTime,
+  handleChangeStartTime,
   namePadding,
   handleChangeNamePadding,
-  handleResetAll,
-  handleSaveLocal,
 }) => {
-  const [open, setOpen] = useState(false)
-  const [snackBarOpen, setSnackBarOpen] = useState(false)
   return (
     <>
       <div>
@@ -42,38 +27,25 @@ const ConfigTab: VFC<Props> = ({
         <p className="mx-5 mt-2 text-sm">
           持ち越しのためTLの記述時間をずらしたい場合の設定
         </p>
-        <div className="flex items-center mt-5 ml-10">
-          <TextField
-            label="分"
-            variant="outlined"
-            type="number"
-            size="small"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={minutes}
-            onChange={(e) => handleChangeMin(parseInt(e.target.value))}
-            inputProps={{ min: 0, max: 1 }}
-            className="w-20 pl-2 mt-10"
-          />
-          <span className="mx-2">分</span>
-          <TextField
-            label="秒"
-            variant="outlined"
-            type="number"
-            size="small"
-            InputLabelProps={{
-              shrink: true,
-            }}
-            value={seconds}
-            onChange={(e) => handleChangeSec(parseInt(e.target.value))}
-            inputProps={{
-              min: minutes === 1 ? 0 : 21,
-              max: minutes === 1 ? 30 : 59,
-            }}
-            className="w-20 pl-2 mt-10"
-          />
-          <span className="mx-2">秒</span>
+        <div className="mt-3 ml-10">
+          <FormControl size="small" variant="outlined" className="w-20">
+            <InputLabel>時間</InputLabel>
+            <Select
+              label="時間"
+              value={startTime}
+              onChange={(e) => handleChangeStartTime(e.target.value as number)}
+            >
+              {Array.from(new Array(70))
+                .map((v, i) => i + 21)
+                .reverse()
+                .map((val) => (
+                  <MenuItem value={val} key={val}>
+                    {Math.floor(val / 60)}:
+                    {val % 60 < 10 ? '0' + (val % 60) : val % 60}
+                  </MenuItem>
+                ))}
+            </Select>
+          </FormControl>
         </div>
 
         <h1 className="mx-3 mt-6 text-lg font-medium">パディング</h1>
@@ -109,83 +81,6 @@ const ConfigTab: VFC<Props> = ({
           </FormControl>
         </div>
       </div>
-      <h1 className="mx-3 mt-6 text-lg font-medium">
-        設定をローカルに保存/初期化
-      </h1>
-      <p className="mx-5 mt-2 text-sm">
-        TL、Format、Name、Configタブに記述されたすべての設定を
-        <br />
-        ローカルに保存する/デフォルト値に戻す
-        <br />
-      </p>
-      <div className="flex items-center mt-5 ml-10">
-        <div className="mr-4">
-          <Button
-            variant="contained"
-            onClick={() => {
-              handleSaveLocal()
-              setSnackBarOpen(true)
-            }}
-          >
-            保存
-          </Button>
-        </div>
-        <div>
-          <Button
-            variant="contained"
-            onClick={() => {
-              setOpen(true)
-            }}
-          >
-            初期化
-          </Button>
-        </div>
-        <Dialog
-          open={open}
-          onClose={() => {
-            setOpen(false)
-          }}
-          aria-labelledby="alert-dialog-title"
-          aria-describedby="alert-dialog-description"
-        >
-          <DialogTitle id="alert-dialog-title">{'初期化の確認'}</DialogTitle>
-          <DialogContent>
-            <DialogContentText id="alert-dialog-description">
-              TL、Format、Name、Configタブに記述されたすべての設定がデフォルト値にリセットされます。操作を続行しますか？
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <Button
-              onClick={() => {
-                setOpen(false)
-              }}
-              color="primary"
-              autoFocus
-            >
-              キャンセル
-            </Button>
-            <Button
-              onClick={() => {
-                handleResetAll()
-                setOpen(false)
-              }}
-              color="primary"
-            >
-              続行
-            </Button>
-          </DialogActions>
-        </Dialog>
-      </div>
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-        onClose={() => setSnackBarOpen(false)}
-        open={snackBarOpen}
-        autoHideDuration={1000}
-        message="設定をローカルに保存しました"
-      />
     </>
   )
 }

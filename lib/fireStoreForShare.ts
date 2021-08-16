@@ -1,5 +1,5 @@
 import firebase from 'firebase'
-
+import { TLData } from './tlFormatter'
 const COLLECTION_NAME = 'formatStyles'
 
 if (firebase.apps.length === 0) {
@@ -15,102 +15,59 @@ if (firebase.apps.length === 0) {
   firebase.initializeApp(firebaseConfig)
 }
 
-export type FormatStyle = {
-  mode: string
-  phase: number
-  bossName: string
-  damage: number
-  battleDate: string
-  characters: {
-    lv: number
-    name: string
-    star: number
-    rank: number
-    specialLv: number
-    remark: string
-  }[]
-  startTime: number
-  endTime: number
-  timeline: { time: number; name: string; remark: string }[]
-  characterNameConvs: { [key: string]: string }
-  headerFormat: string
-  selfUbFormat: string
-  bossUbFormat: string
-  footerFormat: string
-  minConfig: number
-  secConfig: number
-  namePadding: string
+// オブジェクトのハッシュ化
+export const genIdForHash: (formatStyleObj: TLData) => Promise<string> = async (
+  formatStyleObj
+) => {
+  // オブジェクトの文字列化(JSON.stringfyではオブジェクト内の順番が壊れるため失敗する)
+  const sortedCharactersStr = formatStyleObj.characters
+    .map(
+      (character) =>
+        character.lv +
+        ',' +
+        character.name +
+        ',' +
+        character.rank +
+        ',' +
+        character.remark +
+        ',' +
+        character.specialLv +
+        ',' +
+        character.star
+    )
+    .join(',')
+  const sortedTimelineStr = formatStyleObj.timeline
+    .map((line) => line.time + ',' + line.name + ',' + line.remark)
+    .join(',')
+
+  const stringfiedObj =
+    formatStyleObj.mode +
+    '}{' +
+    formatStyleObj.phase +
+    '}{' +
+    formatStyleObj.bossName +
+    '}{' +
+    formatStyleObj.damage +
+    '}{' +
+    formatStyleObj.battleDate +
+    '}{' +
+    formatStyleObj.startTime +
+    '}{' +
+    formatStyleObj.endTime +
+    '}{' +
+    sortedCharactersStr +
+    '}{' +
+    sortedTimelineStr
+  const uint8 = new TextEncoder().encode(stringfiedObj)
+  const digest = await crypto.subtle.digest('SHA-1', uint8)
+  return Array.from(new Uint8Array(digest))
+    .map((v) => v.toString(16).padStart(2, '0'))
+    .join('')
+    .substr(0, 10)
 }
 
-// オブジェクトのハッシュ化
-export const genIdForHash: (formatStyleObj: FormatStyle) => Promise<string> =
-  async (formatStyleObj) => {
-    // オブジェクトの文字列化(JSON.stringfyではオブジェクト内の順番が壊れるため失敗する)
-    const sortedCharacterNameConvs2Str = Object.entries(
-      formatStyleObj.characterNameConvs
-    )
-      .sort()
-      .join(',')
-
-    const sortedCharactersStr = formatStyleObj.characters
-      .map((character) => {
-        Object.entries(character).sort().join(',')
-      })
-      .sort()
-      .join(',')
-
-    const sortedTimelineStr = formatStyleObj.timeline
-      .map((line) => {
-        Object.entries(line).sort().join(',')
-      })
-      .sort()
-      .join(',')
-
-    const stringfiedObj =
-      formatStyleObj.mode +
-      '}{' +
-      formatStyleObj.phase +
-      '}{' +
-      formatStyleObj.bossName +
-      '}{' +
-      formatStyleObj.damage +
-      '}{' +
-      formatStyleObj.battleDate +
-      '}{' +
-      formatStyleObj.startTime +
-      '}{' +
-      formatStyleObj.endTime +
-      '}{' +
-      formatStyleObj.headerFormat +
-      '}{' +
-      formatStyleObj.selfUbFormat +
-      '}{' +
-      formatStyleObj.bossUbFormat +
-      '}{' +
-      formatStyleObj.footerFormat +
-      '}{' +
-      formatStyleObj.minConfig +
-      '}{' +
-      formatStyleObj.secConfig +
-      '}{' +
-      formatStyleObj.namePadding +
-      '}{' +
-      sortedCharacterNameConvs2Str +
-      '}{' +
-      sortedCharactersStr +
-      '}{' +
-      sortedTimelineStr
-
-    const uint8 = new TextEncoder().encode(stringfiedObj)
-    const digest = await crypto.subtle.digest('SHA-1', uint8)
-    return Array.from(new Uint8Array(digest))
-      .map((v) => v.toString(16).padStart(2, '0'))
-      .join('')
-      .substr(0, 10)
-  }
-
 // フォーマットスタイルの設定をfirestoreに保存する
-export const storeFormatStyle: (formatStyleObj: FormatStyle) => void = async (
+export const storeFormatStyle: (formatStyleObj: TLData) => void = async (
   formatStyleObj
 ) => {
   const db = firebase.firestore()
@@ -119,10 +76,10 @@ export const storeFormatStyle: (formatStyleObj: FormatStyle) => void = async (
 }
 
 // フォーマットスタイルの設定をfirestoreから取り出す
-export const fetchFormatStyle: (id: string) => Promise<FormatStyle> = async (
+export const fetchFormatStyle: (id: string) => Promise<TLData> = async (
   id: string
 ) => {
   const db = firebase.firestore()
   const doc = await db.collection(COLLECTION_NAME).doc(id).get()
-  return doc.data() as FormatStyle
+  return doc.data() as TLData
 }

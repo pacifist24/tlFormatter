@@ -9,13 +9,9 @@ import { formatTL } from '../lib/tlFormatter'
 import { DEFAULT_FORMAT } from '../lib/formatConstants'
 import { isMobile } from 'react-device-detect'
 import TLOutputTab from './TLOutputTab'
-import { parseTlData, TLData } from '../lib/tlFormatter'
+import { parseTlData, TLData, FormatStyle } from '../lib/tlFormatter'
 import TLInputTab from './TLInputTab'
-import {
-  FormatStyle,
-  genIdForHash,
-  storeFormatStyle,
-} from '../lib/fireStoreForShare'
+import { genIdForHash, storeFormatStyle } from '../lib/fireStoreForShare'
 // Material-UIが壊れるのでSSRできない
 // const TLInputTab = dynamic(() => import('./TLInputTab'), { ssr: false })
 const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
@@ -48,19 +44,6 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     { time: number; name: string; remark: string }[]
   >([])
 
-  const handleReadTL = (tl: string) => {
-    const tlData: TLData = parseTlData(tl)
-    setMode(tlData.mode)
-    setPhase(tlData.phase)
-    setBossName(tlData.bossName)
-    setDamage(tlData.damage)
-    setBattleDate(tlData.battleDate)
-    setStartTime(tlData.startTime)
-    setEndTime(tlData.endTime)
-    setCharacters(tlData.characters)
-    setTimeline(tlData.timeline)
-  }
-
   const [characterNameConvs, setCharacterNameConvs] = useState<{
     [key: string]: string
   }>()
@@ -85,44 +68,57 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   const [bossUbFormat, setBossUbFormat] = useState('')
   const [footerFormat, setFooterFormat] = useState('')
 
-  const [minConfig, setMinConfig] = useState(1)
-  const [secConfig, setSecConfig] = useState(30)
+  const [startTimeConfig, setStartTimeConfig] = useState(90)
 
   const [namePadding, setNamePadding] = useState('none')
 
-  const handleChangeMin = (val: number) => {
-    setMinConfig(val)
-    setSecConfig(30)
-  }
-
   const handleSaveLocal = () => {
+    const saveStyleObj: FormatStyle = {
+      headerFormat,
+      selfUbFormat,
+      bossUbFormat,
+      footerFormat,
+      nameConvs: characterNameConvs,
+      startTime: startTimeConfig,
+      paddingName: namePadding,
+    }
     localStorage.setItem(
       'stringfiedFormatStyleObj' + process.env.version,
-      JSON.stringify({
-        // mode,
-        // phase,
-        // damage,
-        // bossName,
-        // battleDate,
-        // characters,
-        // startTime,
-        // endTime,
-        // timeline,
-        headerFormat,
-        selfUbFormat,
-        bossUbFormat,
-        footerFormat,
-        characterNameConvs,
-        minConfig,
-        secConfig,
-        namePadding,
-      })
+      JSON.stringify(saveStyleObj)
     )
   }
 
   const [shareURL, setShareURL] = useState('')
 
   const [formattedTL, setFormattedTL] = useState('')
+
+  const handleReadTL = (tl: string) => {
+    setMode('')
+    setPhase(0)
+    setBossName('')
+    setDamage(0)
+    setBattleDate('')
+    setStartTime(90)
+    setEndTime(0)
+    setCharacters([])
+    setTimeline([])
+    const tlData: TLData = parseTlData(tl)
+    setMode(tlData.mode)
+    setPhase(tlData.phase)
+    setBossName(tlData.bossName)
+    setDamage(tlData.damage)
+    setBattleDate(tlData.battleDate)
+    setStartTime(tlData.startTime)
+    setEndTime(tlData.endTime)
+    setCharacters(tlData.characters)
+    setTimeline(tlData.timeline)
+    // try {
+    // } catch (e) {
+    //   setFormattedTL(
+    //     'TLの読み込みに失敗しました、アプリから出力したTLを編集せずに貼りつけてください'
+    //   )
+    // }
+  }
   useEffect(() => {
     const tlData: TLData = {
       mode,
@@ -145,7 +141,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
             bossUbFormat,
             footerFormat,
             characterNameConvs,
-            minConfig * 60 + secConfig,
+            startTimeConfig,
             namePadding
           )
         )
@@ -170,8 +166,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     bossUbFormat,
     footerFormat,
     characterNameConvs,
-    minConfig,
-    secConfig,
+    startTimeConfig,
     namePadding,
   ])
 
@@ -181,32 +176,22 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     setSelfUbFormat(DEFAULT_FORMAT.selfUbFormat)
     setBossUbFormat(DEFAULT_FORMAT.bossUbFormat)
     setFooterFormat(DEFAULT_FORMAT.footerFormat)
-    setCharacterNameConvs(DEFAULT_FORMAT.characterNameConvs)
-    setMinConfig(1)
-    setSecConfig(30)
-    setNamePadding('none')
+    setCharacterNameConvs(DEFAULT_FORMAT.nameConvs)
+    setStartTimeConfig(DEFAULT_FORMAT.startTime)
+    setNamePadding(DEFAULT_FORMAT.paddingName)
 
+    const saveStyleObj: FormatStyle = {
+      headerFormat: DEFAULT_FORMAT.headerFormat,
+      selfUbFormat: DEFAULT_FORMAT.selfUbFormat,
+      bossUbFormat: DEFAULT_FORMAT.bossUbFormat,
+      footerFormat: DEFAULT_FORMAT.footerFormat,
+      nameConvs: DEFAULT_FORMAT.nameConvs,
+      startTime: DEFAULT_FORMAT.startTime,
+      paddingName: DEFAULT_FORMAT.paddingName,
+    }
     localStorage.setItem(
       'stringfiedFormatStyleObj' + process.env.version,
-      JSON.stringify({
-        mode: '',
-        phase: 1,
-        damage: 0,
-        bossName: '',
-        battleDate: '',
-        characters: [],
-        startTime: 90,
-        endTime: 0,
-        timeline: [],
-        headerFormat: DEFAULT_FORMAT.headerFormat,
-        selfUbFormat: DEFAULT_FORMAT.selfUbFormat,
-        bossUbFormat: DEFAULT_FORMAT.bossUbFormat,
-        footerFormat: DEFAULT_FORMAT.footerFormat,
-        characterNameConvs: DEFAULT_FORMAT.characterNameConvs,
-        minConfig: 1,
-        secConfig: 30,
-        namePadding: 'none',
-      })
+      JSON.stringify(saveStyleObj)
     )
   }
 
@@ -214,29 +199,21 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   useEffect(() => {
     if (stringfiedFormatStyleObj !== '') {
       // URLからDBを探してヒットしていたらそれを設定
-      const formatStyleObj = JSON.parse(stringfiedFormatStyleObj) as FormatStyle
-      setMode(formatStyleObj.mode)
-      setPhase(formatStyleObj.phase)
-      setDamage(formatStyleObj.damage)
-      setBossName(formatStyleObj.bossName)
-      setBattleDate(formatStyleObj.battleDate)
-      setCharacters(formatStyleObj.characters)
-      setStartTime(formatStyleObj.startTime)
-      setEndTime(formatStyleObj.endTime)
-      setTimeline(formatStyleObj.timeline)
-      // setHeaderFormat(formatStyleObj.headerFormat)
-      // setSelfUbFormat(formatStyleObj.selfUbFormat)
-      // setBossUbFormat(formatStyleObj.bossUbFormat)
-      // setFooterFormat(formatStyleObj.footerFormat)
-      // setCharacterNameConvs(formatStyleObj.characterNameConvs)
-      // setMinConfig(formatStyleObj.minConfig)
-      // setSecConfig(formatStyleObj.secConfig)
-      // setNamePadding(formatStyleObj.namePadding)
+      const tlDataObj = JSON.parse(stringfiedFormatStyleObj) as TLData
+      setMode(tlDataObj.mode)
+      setPhase(tlDataObj.phase)
+      setDamage(tlDataObj.damage)
+      setBossName(tlDataObj.bossName)
+      setBattleDate(tlDataObj.battleDate)
+      setCharacters(tlDataObj.characters)
+      setStartTime(tlDataObj.startTime)
+      setEndTime(tlDataObj.endTime)
+      setTimeline(tlDataObj.timeline)
       setShareURL(paramId)
     }
 
     if (
-      // ローカルストレージにスタイルの設定があればそれを設定
+      // ローカルストレージにスタイルの設定があれば設定
       localStorage.getItem('stringfiedFormatStyleObj' + process.env.version)
     ) {
       const localFormatStyle = JSON.parse(
@@ -246,10 +223,9 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       setSelfUbFormat(localFormatStyle.selfUbFormat)
       setBossUbFormat(localFormatStyle.bossUbFormat)
       setFooterFormat(localFormatStyle.footerFormat)
-      setCharacterNameConvs(localFormatStyle.characterNameConvs)
-      setMinConfig(localFormatStyle.minConfig)
-      setSecConfig(localFormatStyle.secConfig)
-      setNamePadding(localFormatStyle.namePadding)
+      setCharacterNameConvs(localFormatStyle.nameConvs)
+      setStartTimeConfig(localFormatStyle.startTime)
+      setNamePadding(localFormatStyle.paddingName)
     } else {
       // 初回来場者にはdefault値を設定
       setDefault()
@@ -278,6 +254,11 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           timeline={timeline}
           setTimeline={setTimeline}
           handleReadTL={handleReadTL}
+          handleReadError={() => {
+            setFormattedTL(
+              'TL解析に失敗しました。プリコネアプリから出力されたTLを編集せず読み込んでください。'
+            )
+          }}
         />
       )}
       {activeTab === 'name' && (
@@ -301,14 +282,10 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       )}
       {activeTab === 'config' && (
         <ConfigTab
-          minutes={minConfig}
-          seconds={secConfig}
-          handleChangeMin={handleChangeMin}
-          handleChangeSec={setSecConfig}
+          startTime={startTimeConfig}
+          handleChangeStartTime={setStartTimeConfig}
           namePadding={namePadding}
           handleChangeNamePadding={setNamePadding}
-          handleResetAll={setDefault}
-          handleSaveLocal={handleSaveLocal}
         />
       )}
     </>
@@ -325,14 +302,6 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       startTime,
       endTime,
       timeline,
-      characterNameConvs,
-      headerFormat,
-      selfUbFormat,
-      bossUbFormat,
-      footerFormat,
-      minConfig,
-      secConfig,
-      namePadding,
     })
     if (id !== shareURL) {
       storeFormatStyle({
@@ -345,17 +314,10 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
         startTime,
         endTime,
         timeline,
-        characterNameConvs,
-        headerFormat,
-        selfUbFormat,
-        bossUbFormat,
-        footerFormat,
-        minConfig,
-        secConfig,
-        namePadding,
       })
       setShareURL(id)
     }
+    navigator.clipboard.writeText(process.env.siteUrl + id)
   }
 
   return (

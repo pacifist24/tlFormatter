@@ -38,6 +38,7 @@ const TLInputTab: VFC<{
   timeline: { time: number; name: string; remark: string }[]
   setTimeline: (val: { time: number; name: string; remark: string }[]) => void
   handleReadTL: (tl: string) => void
+  handleReadError: () => void
 }> = ({
   mode,
   phase,
@@ -51,6 +52,7 @@ const TLInputTab: VFC<{
   timeline,
   setTimeline,
   handleReadTL,
+  handleReadError,
 }) => {
   // テスト用
   const maxCharacterName = Math.max(
@@ -70,7 +72,10 @@ const TLInputTab: VFC<{
             onClick={() => {
               navigator.clipboard
                 .readText()
-                .then((clipText) => handleReadTL(clipText))
+                .then((clipText) => {
+                  handleReadTL(clipText)
+                })
+                .catch(handleReadError)
             }}
           >
             クリップボードからTLを読み込み

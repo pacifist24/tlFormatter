@@ -81,7 +81,6 @@ const Header: VFC<Props> = ({
         <MenuItem
           onClick={() => {
             handleMenuSaveTL()
-            navigator.clipboard.writeText(process.env.siteUrl + url)
             setSnackBarMessage(
               'TLを保存し、URLをクリップボードにコピーしました'
             )

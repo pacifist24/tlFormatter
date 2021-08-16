@@ -17,6 +17,16 @@ export type TLData = {
   timeline: { time: number; name: string; remark: string }[]
 }
 
+export type FormatStyle = {
+  headerFormat: string
+  selfUbFormat: string
+  bossUbFormat: string
+  footerFormat: string
+  nameConvs: { [key: string]: string }
+  startTime: number
+  paddingName: string
+}
+
 // 01:20⇒80のように分秒表記を秒に変更
 const timeStr2Num = (timeStr: string) => {
   return parseInt(timeStr.substr(0, 2)) * 60 + parseInt(timeStr.substr(3, 2))
