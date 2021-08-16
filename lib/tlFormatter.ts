@@ -5,10 +5,17 @@ export type TLData = {
   damage: number
   duration: number
   battleDate: string
-  characters: { lv: number; name: string; star: number; rank: number }[]
+  characters: {
+    lv: number
+    name: string
+    star: number
+    rank: number
+    specialLv: number
+    remark: string
+  }[]
   startTime: number
   endTime: number
-  timeline: { time: number; name: string }[]
+  timeline: { time: number; name: string; remark: string }[]
 }
 
 // 01:20⇒80のように分秒表記を秒に変更
@@ -82,6 +89,8 @@ export const parseTlData = (text: string): TLData => {
         name: line[0],
         star: parseInt(line[1].replace('★', '')),
         rank: parseInt(line[3].replace('RANK', '')),
+        specialLv: 0,
+        remark: '',
       }
     }
   }
@@ -109,6 +118,7 @@ export const parseTlData = (text: string): TLData => {
       tlData.timeline.push({
         name: line[1],
         time: timeStr2Num(line[0]),
+        remark: '',
       })
     }
   }

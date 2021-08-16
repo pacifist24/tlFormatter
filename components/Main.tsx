@@ -2,7 +2,6 @@ import { VFC, useState, useEffect } from 'react'
 import TabBar from './Tab'
 import SplitPane from 'react-split-pane'
 import Header from './Header'
-import dynamic from 'next/dynamic'
 import CharacterNameConverterTab from './CharacterNameConverterTab'
 import FormatTab from './FormatTab'
 import ConfigTab from './Config'
@@ -10,13 +9,15 @@ import { formatTL } from '../lib/tlFormatter'
 import { DEFAULT_FORMAT } from '../lib/formatConstants'
 import { isMobile } from 'react-device-detect'
 import TLOutputTab from './TLOutputTab'
+import { parseTlData, TLData } from '../lib/tlFormatter'
+import TLInputTab from './TLInputTab'
 import {
   FormatStyle,
   genIdForHash,
   storeFormatStyle,
 } from '../lib/fireStoreForShare'
 // Material-UIが壊れるのでSSRできない
-const TLInputTab = dynamic(() => import('./TLInputTab'), { ssr: false })
+// const TLInputTab = dynamic(() => import('./TLInputTab'), { ssr: false })
 const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   stringfiedFormatStyleObj,
   paramId,
@@ -26,27 +27,39 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   >('tl')
   const [tl, setTl] = useState('')
 
-  const [mode, setMode] = useState('クラン')
-  const [phase, setPhase] = useState(5)
+  const [mode, setMode] = useState('')
+  const [phase, setPhase] = useState(1)
   const [damage, setDamage] = useState(0)
   const [bossName, setBossName] = useState('')
   const [battleDate, setBattleDate] = useState('')
-  const [characters, setCharacters] = useState([
-    { lv: 1, name: '', star: 1, rank: 1, specialLv: 0, remark: '' },
-    { lv: 1, name: '', star: 1, rank: 1, specialLv: 0, remark: '' },
-    { lv: 1, name: '', star: 1, rank: 1, specialLv: 0, remark: '' },
-    { lv: 1, name: '', star: 1, rank: 1, specialLv: 0, remark: '' },
-    { lv: 1, name: '', star: 1, rank: 1, specialLv: 0, remark: '' },
-  ])
+  const [characters, setCharacters] = useState<
+    {
+      lv: number
+      name: string
+      star: number
+      rank: number
+      specialLv: number
+      remark: string
+    }[]
+  >([])
   const [startTime, setStartTime] = useState(90)
   const [endTime, setEndTime] = useState(0)
   const [timeline, setTimeline] = useState<
     { time: number; name: string; remark: string }[]
-  >([
-    { time: 90, name: '', remark: '' },
-    { time: 90, name: '', remark: '' },
-    { time: 90, name: '', remark: '' },
-  ])
+  >([])
+
+  const handleReadTL = (tl: string) => {
+    const tlData: TLData = parseTlData(tl)
+    setMode(tlData.mode)
+    setPhase(tlData.phase)
+    setBossName(tlData.bossName)
+    setDamage(tlData.damage)
+    setBattleDate(tlData.battleDate)
+    setStartTime(tlData.startTime)
+    setEndTime(tlData.endTime)
+    setCharacters(tlData.characters)
+    setTimeline(tlData.timeline)
+  }
 
   const [characterNameConvs, setCharacterNameConvs] = useState<{
     [key: string]: string
@@ -211,23 +224,17 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       {activeTab === 'tl' && (
         <TLInputTab
           mode={mode}
-          setMode={setMode}
           phase={phase}
-          setPhase={setPhase}
           damage={damage}
-          setDamage={setDamage}
           battleDate={battleDate}
-          setBattleDate={setBattleDate}
           bossName={bossName}
-          setBossName={setBossName}
           characters={characters}
           setCharacters={setCharacters}
           startTime={startTime}
-          setStartTime={setStartTime}
           endTime={endTime}
-          setEndTime={setEndTime}
           timeline={timeline}
           setTimeline={setTimeline}
+          handleReadTL={handleReadTL}
         />
       )}
       {activeTab === 'name' && (
