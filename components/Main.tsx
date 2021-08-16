@@ -25,7 +25,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   const [activeTab, setActiveTab] = useState<
     'tl' | 'format' | 'name' | 'config' | 'output'
   >('tl')
-  const [tl, setTl] = useState('')
+  // const [tl, setTl] = useState('')
 
   const [mode, setMode] = useState('')
   const [phase, setPhase] = useState(1)
@@ -99,7 +99,15 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     localStorage.setItem(
       'stringfiedFormatStyleObj' + process.env.version,
       JSON.stringify({
-        tl,
+        // mode,
+        // phase,
+        // damage,
+        // bossName,
+        // battleDate,
+        // characters,
+        // startTime,
+        // endTime,
+        // timeline,
         headerFormat,
         selfUbFormat,
         bossUbFormat,
@@ -116,11 +124,22 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
 
   const [formattedTL, setFormattedTL] = useState('')
   useEffect(() => {
-    if (tl !== '') {
+    const tlData: TLData = {
+      mode,
+      phase,
+      damage,
+      bossName,
+      battleDate,
+      characters,
+      startTime,
+      endTime,
+      timeline,
+    }
+    if (mode !== '') {
       try {
         setFormattedTL(
           formatTL(
-            tl,
+            tlData,
             headerFormat,
             selfUbFormat,
             bossUbFormat,
@@ -132,12 +151,20 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
         )
       } catch (e) {
         setFormattedTL(
-          'TL解析に失敗しました。プリコネアプリから出力されたTLを直接貼りつけてください。'
+          'TL解析に失敗しました。プリコネアプリから出力されたTLを編集せず読み込んでください。'
         )
       }
     }
   }, [
-    tl,
+    mode,
+    phase,
+    damage,
+    bossName,
+    battleDate,
+    characters,
+    startTime,
+    endTime,
+    timeline,
     headerFormat,
     selfUbFormat,
     bossUbFormat,
@@ -150,7 +177,6 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
 
   // デフォルト値にTL,Format,Name,Config全ての設定をデフォルトに戻す
   const setDefault = () => {
-    setTl(DEFAULT_FORMAT.tl)
     setHeaderFormat(DEFAULT_FORMAT.headerFormat)
     setSelfUbFormat(DEFAULT_FORMAT.selfUbFormat)
     setBossUbFormat(DEFAULT_FORMAT.bossUbFormat)
@@ -163,7 +189,15 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     localStorage.setItem(
       'stringfiedFormatStyleObj' + process.env.version,
       JSON.stringify({
-        tl: DEFAULT_FORMAT.tl,
+        mode: '',
+        phase: 1,
+        damage: 0,
+        bossName: '',
+        battleDate: '',
+        characters: [],
+        startTime: 90,
+        endTime: 0,
+        timeline: [],
         headerFormat: DEFAULT_FORMAT.headerFormat,
         selfUbFormat: DEFAULT_FORMAT.selfUbFormat,
         bossUbFormat: DEFAULT_FORMAT.bossUbFormat,
@@ -181,24 +215,33 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     if (stringfiedFormatStyleObj !== '') {
       // URLからDBを探してヒットしていたらそれを設定
       const formatStyleObj = JSON.parse(stringfiedFormatStyleObj) as FormatStyle
-      setTl(formatStyleObj.tl)
-      setHeaderFormat(formatStyleObj.headerFormat)
-      setSelfUbFormat(formatStyleObj.selfUbFormat)
-      setBossUbFormat(formatStyleObj.bossUbFormat)
-      setFooterFormat(formatStyleObj.footerFormat)
-      setCharacterNameConvs(formatStyleObj.characterNameConvs)
-      setMinConfig(formatStyleObj.minConfig)
-      setSecConfig(formatStyleObj.secConfig)
-      setNamePadding(formatStyleObj.namePadding)
+      setMode(formatStyleObj.mode)
+      setPhase(formatStyleObj.phase)
+      setDamage(formatStyleObj.damage)
+      setBossName(formatStyleObj.bossName)
+      setBattleDate(formatStyleObj.battleDate)
+      setCharacters(formatStyleObj.characters)
+      setStartTime(formatStyleObj.startTime)
+      setEndTime(formatStyleObj.endTime)
+      setTimeline(formatStyleObj.timeline)
+      // setHeaderFormat(formatStyleObj.headerFormat)
+      // setSelfUbFormat(formatStyleObj.selfUbFormat)
+      // setBossUbFormat(formatStyleObj.bossUbFormat)
+      // setFooterFormat(formatStyleObj.footerFormat)
+      // setCharacterNameConvs(formatStyleObj.characterNameConvs)
+      // setMinConfig(formatStyleObj.minConfig)
+      // setSecConfig(formatStyleObj.secConfig)
+      // setNamePadding(formatStyleObj.namePadding)
       setShareURL(paramId)
-    } else if (
+    }
+
+    if (
+      // ローカルストレージにスタイルの設定があればそれを設定
       localStorage.getItem('stringfiedFormatStyleObj' + process.env.version)
     ) {
-      // ローカルストレージに設定があればそれを設定
       const localFormatStyle = JSON.parse(
         localStorage.getItem('stringfiedFormatStyleObj' + process.env.version)
       ) as FormatStyle
-      setTl(localFormatStyle.tl)
       setHeaderFormat(localFormatStyle.headerFormat)
       setSelfUbFormat(localFormatStyle.selfUbFormat)
       setBossUbFormat(localFormatStyle.bossUbFormat)
@@ -271,9 +314,17 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     </>
   )
 
-  const handleClickShare = async () => {
+  const handleMenuSaveTL = async () => {
     const id = await genIdForHash({
-      tl,
+      mode,
+      phase,
+      damage,
+      bossName,
+      battleDate,
+      characters,
+      startTime,
+      endTime,
+      timeline,
       characterNameConvs,
       headerFormat,
       selfUbFormat,
@@ -285,7 +336,15 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     })
     if (id !== shareURL) {
       storeFormatStyle({
-        tl,
+        mode,
+        phase,
+        damage,
+        bossName,
+        battleDate,
+        characters,
+        startTime,
+        endTime,
+        timeline,
         characterNameConvs,
         headerFormat,
         selfUbFormat,
@@ -301,7 +360,12 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
 
   return (
     <>
-      <Header handleClickShare={handleClickShare} url={shareURL} />
+      <Header
+        handleMenuSaveStyle={handleSaveLocal}
+        handleMenuInitStyle={setDefault}
+        handleMenuSaveTL={handleMenuSaveTL}
+        url={shareURL}
+      />
       {isMobile && (
         <main className="flex flex-col h-full border-t border-gray-200">
           {commonTabs}

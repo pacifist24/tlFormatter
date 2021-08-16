@@ -3,7 +3,6 @@ export type TLData = {
   phase: number
   bossName: string
   damage: number
-  duration: number
   battleDate: string
   characters: {
     lv: number
@@ -59,9 +58,9 @@ export const parseTlData = (text: string): TLData => {
   // 3行目
   // バトル時間 01:30
   line = it.next().value
-  if (line) {
-    tlData.duration = timeStr2Num(line[1])
-  }
+  // if (line) {
+  //   tlData.duration = timeStr2Num(line[1])
+  // }
   // 4行目
   // バトル日時 2021/06/29 22:40
   line = it.next().value
@@ -126,7 +125,7 @@ export const parseTlData = (text: string): TLData => {
 }
 
 export const formatTL = (
-  tl: string,
+  tlData: TLData,
   headerFormat: string,
   selfUbFormat: string,
   bossUbFormat: string,
@@ -139,7 +138,6 @@ export const formatTL = (
   const characterUbTemplateText = selfUbFormat + '\n'
   const bossUbTemplateText = bossUbFormat + '\n'
   const footerTemplateText = footerFormat + '\n'
-  const tlData = parseTlData(tl)
 
   // 名前の変換を行う
   const convertName = (name: string) => {
@@ -202,10 +200,12 @@ export const formatTL = (
       timelineOutput += bossUbTemplateText
         .replace('<UB使用時秒数>', timeNum2Str(ub.time - lessTime).substr(1))
         .replace('<UB使用キャラ名>', ub.name)
+        .replace('<UB備考>', ub.remark)
     } else {
       timelineOutput += characterUbTemplateText
         .replace('<UB使用時秒数>', timeNum2Str(ub.time - lessTime).substr(1))
         .replace('<UB使用キャラ名>', doPadding(convertName(ub.name)))
+        .replace('<UB備考>', ub.remark)
     }
   }
   timelineOutput = headerTemplateText + timelineOutput + footerTemplateText
@@ -215,28 +215,38 @@ export const formatTL = (
     .replace('<ボス名>', tlData.bossName.toString())
     .replace('<詳細与ダメージ>', tlData.damage.toString())
     .replace('<ダメージ>', Math.floor(tlData.damage / 10000) + '万')
-    .replace('<所要秒数>', tlData.duration.toString())
+    .replace('<所要秒数>', (tlData.startTime - tlData.endTime).toString())
     .replace('<バトル日時>', tlData.battleDate.toString())
     .replace('<キャラ1名>', doPadding(convertName(tlData.characters[0].name)))
     .replace('<キャラ1星>', tlData.characters[0].star.toString())
     .replace('<キャラ1R>', tlData.characters[0].rank.toString())
     .replace('<キャラ1LV>', tlData.characters[0].lv.toString())
+    .replace('<キャラ1専用LV>', tlData.characters[0].specialLv.toString())
+    .replace('<キャラ1備考>', tlData.characters[0].remark.toString())
     .replace('<キャラ2名>', doPadding(convertName(tlData.characters[1].name)))
     .replace('<キャラ2星>', tlData.characters[1].star.toString())
     .replace('<キャラ2R>', tlData.characters[1].rank.toString())
     .replace('<キャラ2LV>', tlData.characters[1].lv.toString())
+    .replace('<キャラ2専用LV>', tlData.characters[1].specialLv.toString())
+    .replace('<キャラ2備考>', tlData.characters[1].remark.toString())
     .replace('<キャラ3名>', doPadding(convertName(tlData.characters[2].name)))
     .replace('<キャラ3星>', tlData.characters[2].star.toString())
     .replace('<キャラ3R>', tlData.characters[2].rank.toString())
     .replace('<キャラ3LV>', tlData.characters[2].lv.toString())
+    .replace('<キャラ3専用LV>', tlData.characters[2].specialLv.toString())
+    .replace('<キャラ3備考>', tlData.characters[2].remark.toString())
     .replace('<キャラ4名>', doPadding(convertName(tlData.characters[3].name)))
     .replace('<キャラ4星>', tlData.characters[3].star.toString())
     .replace('<キャラ4R>', tlData.characters[3].rank.toString())
     .replace('<キャラ4LV>', tlData.characters[3].lv.toString())
+    .replace('<キャラ4専用LV>', tlData.characters[3].specialLv.toString())
+    .replace('<キャラ4備考>', tlData.characters[3].remark.toString())
     .replace('<キャラ5名>', doPadding(convertName(tlData.characters[4].name)))
     .replace('<キャラ5星>', tlData.characters[4].star.toString())
     .replace('<キャラ5R>', tlData.characters[4].rank.toString())
     .replace('<キャラ5LV>', tlData.characters[4].lv.toString())
+    .replace('<キャラ5専用LV>', tlData.characters[4].specialLv.toString())
+    .replace('<キャラ5備考>', tlData.characters[4].remark.toString())
     .replace('<開始秒数>', timeNum2Str(tlData.startTime - lessTime).substr(1))
     .replace(
       '<終了秒数>',

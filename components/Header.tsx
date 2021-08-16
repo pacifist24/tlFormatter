@@ -1,18 +1,97 @@
 import { VFC } from 'react'
 import Snackbar from '@material-ui/core/Snackbar'
 import { useState } from 'react'
+import Button from '@material-ui/core/Button'
+import Menu from '@material-ui/core/Menu'
+import MenuItem from '@material-ui/core/MenuItem'
+import Fade from '@material-ui/core/Fade'
 
 type Props = {
-  handleClickShare: () => void
+  handleMenuSaveStyle: () => void
+  handleMenuInitStyle: () => void
+  handleMenuSaveTL: () => Promise<void>
   url: string
 }
 
-const Header: VFC<Props> = ({ handleClickShare, url }) => {
+const Header: VFC<Props> = ({
+  handleMenuSaveStyle,
+  handleMenuInitStyle,
+  handleMenuSaveTL,
+  url,
+}) => {
   const [snackBarOpen, setSnackBarOpen] = useState(false)
-  const [shareSnackBarOpen, setShareSnackBarOpen] = useState(false)
+  const [snackBarMessage, setSnackBarMessage] = useState('')
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const open = Boolean(anchorEl)
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
 
   return (
     <header className="relative top-0 left-0 z-10 flex items-center flex-none h-16 py-3 pl-5 space-x-4">
+      <Button
+        aria-controls="fade-menu"
+        aria-haspopup="true"
+        onClick={handleClick}
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          className="w-6 h-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </Button>
+      <Menu
+        id="fade-menu"
+        anchorEl={anchorEl}
+        keepMounted
+        open={open}
+        onClose={() => setAnchorEl(null)}
+        TransitionComponent={Fade}
+      >
+        <MenuItem
+          onClick={() => {
+            handleMenuSaveStyle()
+            setSnackBarMessage('スタイルを保存しました')
+            setSnackBarOpen(true)
+            setAnchorEl(null)
+          }}
+        >
+          スタイルの保存
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            handleMenuInitStyle()
+            setSnackBarMessage('スタイルを初期化しました')
+            setSnackBarOpen(true)
+            setAnchorEl(null)
+          }}
+        >
+          スタイルの初期化
+        </MenuItem>
+        <MenuItem
+          onClick={() => {
+            handleMenuSaveTL()
+            navigator.clipboard.writeText(process.env.siteUrl + url)
+            setSnackBarMessage(
+              'TLを保存し、URLをクリップボードにコピーしました'
+            )
+            setSnackBarOpen(true)
+            setAnchorEl(null)
+          }}
+        >
+          TLの保存/URL出力
+        </MenuItem>
+      </Menu>
       <div className="flex-initial font-mono text-2xl font-bold">
         TL
         <span className="ml-1 text-lg italic tracking-tight text-turquoise-500">
@@ -20,25 +99,10 @@ const Header: VFC<Props> = ({ handleClickShare, url }) => {
         </span>
       </div>
 
-      <div className="flex-initial">
-        <button
-          className="relative flex-none px-8 py-4 ml-1 text-sm font-medium border border-gray-200 rounded-md leading-5 focus:border-turquoise-500 focus:outline-none focus:shadow-outline hover:bg-gray-50"
-          onClick={(e) => {
-            handleClickShare()
-            navigator.clipboard.writeText(process.env.siteUrl + url)
-            e.currentTarget.blur()
-            setShareSnackBarOpen(true)
-          }}
-        >
-          <span className="absolute inset-0 flex items-center justify-center">
-            Share
-          </span>
-        </button>
-      </div>
       {url && (
         <div className="flex-initial">
           <button
-            className="flex items-center flex-auto min-w-0 ml-1 text-sm font-medium text-gray-500 group space-x-1.5 leading-5 hover:text-gray-900"
+            className="flex items-center flex-auto min-w-0 ml-5 text-sm font-medium text-gray-500 group space-x-1.5 leading-5 hover:text-gray-900"
             title={process.env.siteUrl + url}
             onClick={() => {
               navigator.clipboard.writeText(process.env.siteUrl + url)
@@ -65,20 +129,10 @@ const Header: VFC<Props> = ({ handleClickShare, url }) => {
           vertical: 'top',
           horizontal: 'center',
         }}
-        onClose={() => setShareSnackBarOpen(false)}
-        open={shareSnackBarOpen}
-        autoHideDuration={3000}
-        message="サーバーに設定を保存し、保存先URLをコピーしました"
-      />
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
         onClose={() => setSnackBarOpen(false)}
         open={snackBarOpen}
-        autoHideDuration={1000}
-        message="URLをコピーしました"
+        autoHideDuration={1500}
+        message={snackBarMessage}
       />
     </header>
   )

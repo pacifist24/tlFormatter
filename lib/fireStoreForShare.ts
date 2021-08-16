@@ -16,7 +16,22 @@ if (firebase.apps.length === 0) {
 }
 
 export type FormatStyle = {
-  tl: string
+  mode: string
+  phase: number
+  bossName: string
+  damage: number
+  battleDate: string
+  characters: {
+    lv: number
+    name: string
+    star: number
+    rank: number
+    specialLv: number
+    remark: string
+  }[]
+  startTime: number
+  endTime: number
+  timeline: { time: number; name: string; remark: string }[]
   characterNameConvs: { [key: string]: string }
   headerFormat: string
   selfUbFormat: string
@@ -37,9 +52,34 @@ export const genIdForHash: (formatStyleObj: FormatStyle) => Promise<string> =
       .sort()
       .join(',')
 
+    const sortedCharactersStr = formatStyleObj.characters
+      .map((character) => {
+        Object.entries(character).sort().join(',')
+      })
+      .sort()
+      .join(',')
+
+    const sortedTimelineStr = formatStyleObj.timeline
+      .map((line) => {
+        Object.entries(line).sort().join(',')
+      })
+      .sort()
+      .join(',')
+
     const stringfiedObj =
-      ',' +
-      formatStyleObj.tl +
+      formatStyleObj.mode +
+      '}{' +
+      formatStyleObj.phase +
+      '}{' +
+      formatStyleObj.bossName +
+      '}{' +
+      formatStyleObj.damage +
+      '}{' +
+      formatStyleObj.battleDate +
+      '}{' +
+      formatStyleObj.startTime +
+      '}{' +
+      formatStyleObj.endTime +
       '}{' +
       formatStyleObj.headerFormat +
       '}{' +
@@ -55,7 +95,11 @@ export const genIdForHash: (formatStyleObj: FormatStyle) => Promise<string> =
       '}{' +
       formatStyleObj.namePadding +
       '}{' +
-      sortedCharacterNameConvs2Str
+      sortedCharacterNameConvs2Str +
+      '}{' +
+      sortedCharactersStr +
+      '}{' +
+      sortedTimelineStr
 
     const uint8 = new TextEncoder().encode(stringfiedObj)
     const digest = await crypto.subtle.digest('SHA-1', uint8)
