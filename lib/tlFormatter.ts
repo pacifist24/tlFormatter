@@ -25,6 +25,7 @@ export type FormatStyle = {
   nameConvs: { [key: string]: string }
   startTime: number
   paddingName: string
+  arrange: string
 }
 
 // 01:20⇒80のように分秒表記を秒に変更
@@ -134,25 +135,16 @@ export const parseTlData = (text: string): TLData => {
   return tlData
 }
 
-export const formatTL = (
-  tlData: TLData,
-  headerFormat: string,
-  selfUbFormat: string,
-  bossUbFormat: string,
-  footerFormat: string,
-  nameConvs: { [key: string]: string },
-  startTime: number,
-  paddingName: string
-): string => {
-  const headerTemplateText = headerFormat + '\n'
-  const characterUbTemplateText = selfUbFormat + '\n'
-  const bossUbTemplateText = bossUbFormat + '\n'
-  const footerTemplateText = footerFormat + '\n'
+export const formatTL = (tlData: TLData, formatStyle: FormatStyle): string => {
+  const headerTemplateText = formatStyle.headerFormat + '\n'
+  const characterUbTemplateText = formatStyle.selfUbFormat + '\n'
+  const bossUbTemplateText = formatStyle.bossUbFormat + '\n'
+  const footerTemplateText = formatStyle.footerFormat + '\n'
 
   // 名前の変換を行う
   const convertName = (name: string) => {
-    if (name in nameConvs) {
-      return nameConvs[name]
+    if (name in formatStyle.nameConvs) {
+      return formatStyle.nameConvs[name]
     }
     return name
   }
@@ -188,7 +180,7 @@ export const formatTL = (
     const paddingStr =
       Array(Math.floor((maxLength - nameLen) / 2) + 1).join('　') +
       ((maxLength - nameLen) % 2 === 1 ? ' ' : '')
-    switch (paddingName) {
+    switch (formatStyle.paddingName) {
       case 'none':
         return name
       case 'head':
@@ -198,26 +190,81 @@ export const formatTL = (
     }
   }
 
-  const lessTime = tlData.startTime - startTime
+  const lessTime = tlData.startTime - formatStyle.startTime
   let timelineOutput = ''
-  for (const ub of tlData.timeline) {
-    if (ub.time - lessTime < 1) {
-      // 時間不足によりUBが打てなければ以降をカット
-      break
+  if (formatStyle.arrange === 'none') {
+    for (const ub of tlData.timeline) {
+      if (ub.time - lessTime < 1) {
+        // 時間不足によりUBが打てなければ以降をカット
+        break
+      }
+      if (ub.name === tlData.bossName) {
+        timelineOutput += bossUbTemplateText
+          .replace('<UB使用時秒数>', timeNum2Str(ub.time - lessTime).substr(1))
+          .replace('<UB使用キャラ名>', ub.name)
+          .replace('<UB備考>', ub.remark)
+      } else {
+        timelineOutput += characterUbTemplateText
+          .replace('<UB使用時秒数>', timeNum2Str(ub.time - lessTime).substr(1))
+          .replace('<UB使用キャラ名>', doPadding(convertName(ub.name)))
+          .replace('<UB備考>', ub.remark)
+      }
     }
-
-    if (ub.name === tlData.bossName) {
-      timelineOutput += bossUbTemplateText
-        .replace('<UB使用時秒数>', timeNum2Str(ub.time - lessTime).substr(1))
-        .replace('<UB使用キャラ名>', ub.name)
-        .replace('<UB備考>', ub.remark)
-    } else {
-      timelineOutput += characterUbTemplateText
-        .replace('<UB使用時秒数>', timeNum2Str(ub.time - lessTime).substr(1))
-        .replace('<UB使用キャラ名>', doPadding(convertName(ub.name)))
-        .replace('<UB備考>', ub.remark)
+  } else {
+    let index = 0
+    while (index < tlData.timeline.length) {
+      const ub = tlData.timeline[index]
+      if (ub.time - lessTime < 1) {
+        // 時間不足によりUBが打てなければ以降をカット
+        break
+      }
+      if (ub.name === tlData.bossName) {
+        timelineOutput += bossUbTemplateText
+          .replace('<UB使用時秒数>', timeNum2Str(ub.time - lessTime).substr(1))
+          .replace('<UB使用キャラ名>', ub.name)
+          .replace('<UB備考>', ub.remark)
+      } else {
+        let subNames = ''
+        for (let i = index + 1; i < tlData.timeline.length; i++) {
+          const subUb = tlData.timeline[i]
+          if (
+            subUb.name !== tlData.bossName &&
+            subUb.remark === '' &&
+            ub.time === subUb.time
+          ) {
+            subNames += ' ' + doPadding(convertName(subUb.name))
+            index = i
+          } else {
+            break
+          }
+        }
+        if (formatStyle.arrange === 'same') {
+          timelineOutput += characterUbTemplateText
+            .replace(
+              '<UB使用時秒数>',
+              timeNum2Str(ub.time - lessTime).substr(1)
+            )
+            .replace(
+              '<UB使用キャラ名>',
+              doPadding(convertName(ub.name)) + subNames
+            )
+            .replace('<UB備考>', ub.remark)
+        } else if (formatStyle.arrange === 'next') {
+          timelineOutput +=
+            characterUbTemplateText
+              .replace(
+                '<UB使用時秒数>',
+                timeNum2Str(ub.time - lessTime).substr(1)
+              )
+              .replace('<UB使用キャラ名>', doPadding(convertName(ub.name)))
+              .replace('<UB備考>', ub.remark) +
+            (subNames ? '⇒' + subNames + '\n' : '')
+        }
+      }
+      index++
     }
   }
+
   timelineOutput = headerTemplateText + timelineOutput + footerTemplateText
   return timelineOutput
     .replace('<モード>', tlData.mode)

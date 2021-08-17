@@ -69,8 +69,8 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   const [footerFormat, setFooterFormat] = useState('')
 
   const [startTimeConfig, setStartTimeConfig] = useState(90)
-
   const [namePadding, setNamePadding] = useState('none')
+  const [arrangeConfig, setArrangeConfig] = useState('none')
 
   const handleSaveLocal = () => {
     const saveStyleObj: FormatStyle = {
@@ -81,6 +81,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       nameConvs: characterNameConvs,
       startTime: startTimeConfig,
       paddingName: namePadding,
+      arrange: arrangeConfig,
     }
     localStorage.setItem(
       'stringfiedFormatStyleObj' + process.env.version,
@@ -112,12 +113,6 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     setEndTime(tlData.endTime)
     setCharacters(tlData.characters)
     setTimeline(tlData.timeline)
-    // try {
-    // } catch (e) {
-    //   setFormattedTL(
-    //     'TLの読み込みに失敗しました、アプリから出力したTLを編集せずに貼りつけてください'
-    //   )
-    // }
   }
   useEffect(() => {
     const tlData: TLData = {
@@ -131,20 +126,19 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       endTime,
       timeline,
     }
+    const formatStyle: FormatStyle = {
+      headerFormat,
+      selfUbFormat,
+      bossUbFormat,
+      footerFormat,
+      nameConvs: characterNameConvs,
+      startTime: startTimeConfig,
+      paddingName: namePadding,
+      arrange: arrangeConfig,
+    }
     if (mode !== '') {
       try {
-        setFormattedTL(
-          formatTL(
-            tlData,
-            headerFormat,
-            selfUbFormat,
-            bossUbFormat,
-            footerFormat,
-            characterNameConvs,
-            startTimeConfig,
-            namePadding
-          )
-        )
+        setFormattedTL(formatTL(tlData, formatStyle))
       } catch (e) {
         setFormattedTL(
           'TL解析に失敗しました。プリコネアプリから出力されたTLを編集せず読み込んでください。'
@@ -168,6 +162,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     characterNameConvs,
     startTimeConfig,
     namePadding,
+    arrangeConfig,
   ])
 
   // デフォルト値にTL,Format,Name,Config全ての設定をデフォルトに戻す
@@ -188,6 +183,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       nameConvs: DEFAULT_FORMAT.nameConvs,
       startTime: DEFAULT_FORMAT.startTime,
       paddingName: DEFAULT_FORMAT.paddingName,
+      arrange: DEFAULT_FORMAT.arrange,
     }
     localStorage.setItem(
       'stringfiedFormatStyleObj' + process.env.version,
@@ -287,6 +283,8 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           handleChangeStartTime={setStartTimeConfig}
           namePadding={namePadding}
           handleChangeNamePadding={setNamePadding}
+          arrange={arrangeConfig}
+          handleChangeArrange={setArrangeConfig}
         />
       )}
     </>

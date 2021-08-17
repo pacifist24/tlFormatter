@@ -12,6 +12,8 @@ type Props = {
   handleChangeStartTime: (val: number) => void
   namePadding: string
   handleChangeNamePadding: (val: string) => void
+  arrange: string
+  handleChangeArrange: (val: string) => void
 }
 
 const ConfigTab: VFC<Props> = ({
@@ -19,6 +21,8 @@ const ConfigTab: VFC<Props> = ({
   handleChangeStartTime,
   namePadding,
   handleChangeNamePadding,
+  arrange,
+  handleChangeArrange,
 }) => {
   return (
     <>
@@ -48,35 +52,82 @@ const ConfigTab: VFC<Props> = ({
           </FormControl>
         </div>
 
+        <h1 className="mx-3 mt-6 text-lg font-medium">
+          同一秒数UB発動の場合のまとめ書き
+        </h1>
+        <p className="mx-5 mt-2 text-sm">
+          同一秒数のUB発動でコメントが無い場合、横並べでまとめ書きする
+        </p>
+        <div className="flex items-center mt-5 ml-10">
+          <FormControl component="fieldset" size="small">
+            <RadioGroup
+              value={arrange}
+              name="radio-arrage"
+              onChange={(e) => handleChangeArrange(e.target.value)}
+            >
+              <div className="flex">
+                <div>
+                  <FormControlLabel
+                    value="none"
+                    control={<Radio size="small" color="primary" />}
+                    label="無し"
+                  />
+                </div>
+                <div className="ml-3">
+                  <FormControlLabel
+                    value="same"
+                    control={<Radio size="small" color="primary" />}
+                    label="同行"
+                  />
+                </div>
+                <div className="ml-3">
+                  <FormControlLabel
+                    value="next"
+                    control={<Radio size="small" color="primary" />}
+                    label="次行"
+                  />
+                </div>
+              </div>
+            </RadioGroup>
+          </FormControl>
+        </div>
+
         <h1 className="mx-3 mt-6 text-lg font-medium">パディング</h1>
         <p className="mx-5 mt-2 text-sm">
           名前の長さが最大のキャラクターに合わせて
           <br />
           名前の短いキャラの前方もしくは後方に空白を挿入する
-          <br />
         </p>
         <div className="flex items-center mt-5 ml-10">
-          <FormControl component="fieldset">
+          <FormControl component="fieldset" size="small">
             <RadioGroup
               value={namePadding}
-              name="radio-buttons-group"
+              name="radio-name-padding"
               onChange={(e) => handleChangeNamePadding(e.target.value)}
             >
-              <FormControlLabel
-                value="none"
-                control={<Radio size="small" color="primary" />}
-                label="無し"
-              />
-              <FormControlLabel
-                value="head"
-                control={<Radio size="small" color="primary" />}
-                label="前方"
-              />
-              <FormControlLabel
-                value="tail"
-                control={<Radio size="small" color="primary" />}
-                label="後方"
-              />
+              <div className="flex">
+                <div>
+                  <FormControlLabel
+                    value="none"
+                    control={<Radio size="small" color="primary" />}
+                    label="無し"
+                  />
+                </div>
+                <div className="ml-3">
+                  <FormControlLabel
+                    value="head"
+                    control={<Radio size="small" color="primary" />}
+                    label="前方"
+                  />
+                </div>
+                <div className="ml-3">
+                  <FormControlLabel
+                    value="tail"
+                    control={<Radio size="small" color="primary" />}
+                    label="後方"
+                  />
+                </div>
+              </div>
             </RadioGroup>
           </FormControl>
         </div>

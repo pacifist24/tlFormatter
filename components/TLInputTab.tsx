@@ -164,7 +164,7 @@ const TLInputTab: VFC<{
             <div className="flex ml-5">
               <span>◆ユニオンバースト発動時間</span>
             </div>
-            <div className="flex ml-5">
+            <div className="flex mt-3 ml-5">
               <span className="w-10">{timeNum2Str(startTime).substr(1)}</span>
               <span className="ml-1">バトル開始</span>
             </div>

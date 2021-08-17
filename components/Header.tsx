@@ -5,7 +5,6 @@ import Button from '@material-ui/core/Button'
 import Menu from '@material-ui/core/Menu'
 import MenuItem from '@material-ui/core/MenuItem'
 import Fade from '@material-ui/core/Fade'
-
 type Props = {
   handleMenuSaveStyle: () => void
   handleMenuInitStyle: () => void
