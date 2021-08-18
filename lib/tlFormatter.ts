@@ -94,16 +94,27 @@ export const parseTlData = (text: string): TLData => {
   for (let i = 0; i < 5; i++) {
     line = it.next().value
     if (line) {
+      // RANK以降を切り取って、文頭のRANKの文字を削る
+      const behindRank = line.slice(3).join('').substr(4)
+      const rankStr = behindRank.match(/[0-9]+/)[0]
       tlData.characters[i] = {
         lv: parseInt(line[2].replace('Lv', '')),
         name: line[0],
         star: parseInt(line[1].replace('★', '')),
-        rank: parseInt(line[3].replace('RANK', '')),
+        rank: parseInt(rankStr),
         specialLv: 0,
-        remark: '',
+        remark: behindRank.substr(rankStr.length),
       }
     }
   }
+  // 存在する名前一覧(キャルとキャル（ニューイヤー）のような並びがあったらキャル（ニューイヤー）を先にする)
+  const existCharacterNames = tlData.characters.map(
+    (character) => character.name
+  )
+
+  existCharacterNames.push(tlData.bossName)
+  existCharacterNames.sort().reverse()
+
   // 12行目
   // ----
   line = it.next().value
@@ -125,10 +136,26 @@ export const parseTlData = (text: string): TLData => {
     if (line[1] === 'バトル終了') {
       tlData.endTime = timeStr2Num(line[0])
     } else {
+      // TL行の時間を除いた部分 キャル（ニューイヤー） シャドバ後等
+      const lineWithoutTime = line.slice(1).join(' ')
+      let remarkStr = ''
+      let characterNameStr = ''
+      for (let i = 0; i < existCharacterNames.length; i++) {
+        // 存在するキャラとの前方一致を確認して以後の部分をコメントとする
+        if (lineWithoutTime.indexOf(existCharacterNames[i]) === 0) {
+          characterNameStr = existCharacterNames[i]
+          remarkStr = lineWithoutTime
+            .substr(existCharacterNames[i].length)
+            .trim()
+
+          break
+        }
+      }
+      // コメント無し行
       tlData.timeline.push({
-        name: line[1],
+        name: characterNameStr,
         time: timeStr2Num(line[0]),
-        remark: '',
+        remark: remarkStr,
       })
     }
   }

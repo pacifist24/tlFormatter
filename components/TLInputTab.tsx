@@ -40,6 +40,16 @@ const TLInputTab: VFC<{
   handleReadTL: (tl: string) => void
   handleReadError: () => void
   nameConvs: { [key: string]: string }
+  setAlertState: (alertState: {
+    open: boolean
+    anchorOrigin: {
+      vertical: 'bottom' | 'top'
+      horizontal: 'center' | 'left' | 'right'
+    }
+    severity: 'error' | 'info' | 'success' | 'warning'
+    autoHideDuration: number
+    message: string
+  }) => void
 }> = ({
   mode,
   phase,
@@ -55,6 +65,7 @@ const TLInputTab: VFC<{
   handleReadTL,
   handleReadError,
   nameConvs,
+  setAlertState,
 }) => {
   // テスト用
   const maxCharacterNamLength = Math.max(
@@ -77,6 +88,16 @@ const TLInputTab: VFC<{
                 .readText()
                 .then((clipText) => {
                   handleReadTL(clipText)
+                  setAlertState({
+                    open: true,
+                    anchorOrigin: {
+                      vertical: 'top',
+                      horizontal: 'center',
+                    },
+                    severity: 'success',
+                    autoHideDuration: 2000,
+                    message: 'TLの読み込みに成功しました',
+                  })
                 })
                 .catch(handleReadError)
             }}

@@ -15,6 +15,7 @@ import { genIdForHash, storeFormatStyle } from '../lib/fireStoreForShare'
 import FavsTab from './FavsTab'
 import { FavsInfo } from './FavsTab'
 import { fetchFormatStyle } from '../lib/fireStoreForShare'
+import CustomizedSnackbars from './CustomizedSnackbars'
 
 const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   stringfiedFormatStyleObj,
@@ -71,7 +72,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
 
   const [startTimeConfig, setStartTimeConfig] = useState(90)
   const [namePadding, setNamePadding] = useState('none')
-  const [arrangeConfig, setArrangeConfig] = useState('none')
+  const [arrangeConfig, setArrangeConfig] = useState('same')
 
   const [currentPageTLData, setCurrentPageTLData] = useState<TLData>()
   const [favsInfos, setFavsInfos] = useState<{ [key: string]: FavsInfo }>({})
@@ -82,22 +83,45 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       currentPageTLData.damage &&
       currentPageTLData.phase
     ) {
-      const clone = { ...favsInfos }
-      delete clone[shareURL]
-      const addedfavsInfo: { [key: string]: FavsInfo } = {
-        [shareURL]: {
-          bossName: currentPageTLData.bossName,
-          characters: currentPageTLData.characters,
-          damage: currentPageTLData.damage,
-          phase: currentPageTLData.phase,
-          duration: currentPageTLData.startTime - currentPageTLData.endTime,
-        },
+      if (favsInfos[shareURL]) {
+        // すでにお気に入りに登録されている場合
+        setAlertState({
+          open: true,
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'center',
+          },
+          severity: 'warning',
+          autoHideDuration: 3000,
+          message: shareURL + 'は既にFavsに登録されています',
+        })
+      } else {
+        const clone = { ...favsInfos }
+        const addedfavsInfo: { [key: string]: FavsInfo } = {
+          [shareURL]: {
+            bossName: currentPageTLData.bossName,
+            characters: currentPageTLData.characters,
+            damage: currentPageTLData.damage,
+            phase: currentPageTLData.phase,
+            duration: currentPageTLData.startTime - currentPageTLData.endTime,
+          },
+        }
+        setFavsInfos({ ...addedfavsInfo, ...clone })
+        localStorage.setItem(
+          'stringfiedFavsInfosObj' + process.env.version,
+          JSON.stringify({ ...addedfavsInfo, ...clone })
+        )
+        setAlertState({
+          open: true,
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'center',
+          },
+          severity: 'success',
+          autoHideDuration: 2000,
+          message: 'Favsへの登録に成功しました',
+        })
       }
-      setFavsInfos({ ...addedfavsInfo, ...clone })
-      localStorage.setItem(
-        'stringfiedFavsInfosObj' + process.env.version,
-        JSON.stringify({ ...addedfavsInfo, ...clone })
-      )
     }
   }
 
@@ -169,6 +193,26 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
 
   const [formattedTL, setFormattedTL] = useState('')
 
+  const [alertState, setAlertState] = useState<{
+    open: boolean
+    anchorOrigin: {
+      vertical: 'bottom' | 'top'
+      horizontal: 'center' | 'left' | 'right'
+    }
+    severity: 'error' | 'info' | 'success' | 'warning'
+    autoHideDuration: number
+    message: string
+  }>({
+    open: false,
+    anchorOrigin: {
+      vertical: 'top',
+      horizontal: 'center',
+    },
+    severity: 'success',
+    autoHideDuration: 1000,
+    message: '',
+  })
+
   const handleReadTL = (tl: string) => {
     setMode('')
     setPhase(0)
@@ -217,7 +261,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
         setFormattedTL(formatTL(tlData, formatStyle))
       } catch (e) {
         setFormattedTL(
-          'TL解析に失敗しました。プリコネアプリから出力されたTLを編集せず読み込んでください。'
+          'TL解析に失敗しました、プリコネアプリから出力されたTL、もしくはそれにコメントを付けたものが読み込み可能です'
         )
       }
     }
@@ -339,11 +383,20 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           setTimeline={setTimeline}
           handleReadTL={handleReadTL}
           handleReadError={() => {
-            setFormattedTL(
-              'TL解析に失敗しました。プリコネアプリから出力されたTLを編集せず読み込んでください。'
-            )
+            setAlertState({
+              open: true,
+              anchorOrigin: {
+                vertical: 'top',
+                horizontal: 'center',
+              },
+              severity: 'error',
+              autoHideDuration: 10000,
+              message:
+                'TL解析に失敗しました。プリコネアプリから出力されたTLを編集せず読み込んでください。',
+            })
           }}
           nameConvs={characterNameConvs}
+          setAlertState={setAlertState}
         />
       )}
       {activeTab === 'name' && (
@@ -426,6 +479,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
         handleMenuSaveStyle={handleSaveLocal}
         handleMenuInitStyle={setDefault}
         handleMenuSaveTL={handleMenuSaveTL}
+        setAlertState={setAlertState}
         url={shareURL}
       />
       {isMobile && (
@@ -446,6 +500,10 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           <TLOutputTab tl={formattedTL} />
         </SplitPane>
       )}
+      <CustomizedSnackbars
+        alertState={alertState}
+        setAlertState={setAlertState}
+      />
     </>
   )
 }

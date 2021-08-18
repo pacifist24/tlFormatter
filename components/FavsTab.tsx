@@ -111,7 +111,7 @@ const FavsTab: VFC<{
           </Button>
         </div>
       )}
-      <div className="flex flex-wrap mt-8">
+      <div className="flex flex-wrap justify-around mt-8">
         {Object.keys(favsInfos).map((key) => (
           <FavsCard
             key={key}

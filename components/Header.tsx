@@ -1,5 +1,4 @@
 import { VFC } from 'react'
-import Snackbar from '@material-ui/core/Snackbar'
 import { useState } from 'react'
 import Button from '@material-ui/core/Button'
 import { makeStyles } from '@material-ui/core/styles'
@@ -15,6 +14,16 @@ type Props = {
   handleMenuSaveStyle: () => void
   handleMenuInitStyle: () => void
   handleMenuSaveTL: () => Promise<void>
+  setAlertState: (alertState: {
+    open: boolean
+    anchorOrigin: {
+      vertical: 'bottom' | 'top'
+      horizontal: 'center' | 'left' | 'right'
+    }
+    severity: 'error' | 'info' | 'success' | 'warning'
+    autoHideDuration: number
+    message: string
+  }) => void
   url: string
 }
 const useStyles = makeStyles({
@@ -31,11 +40,9 @@ const Header: VFC<Props> = ({
   handleMenuSaveStyle,
   handleMenuInitStyle,
   handleMenuSaveTL,
+  setAlertState,
   url,
 }) => {
-  const [snackBarOpen, setSnackBarOpen] = useState(false)
-  const [snackBarMessage, setSnackBarMessage] = useState('')
-
   const classes = useStyles()
   const [state, setState] = useState({
     left: false,
@@ -90,8 +97,16 @@ const Header: VFC<Props> = ({
                 button
                 onClick={() => {
                   handleMenuLoadStyle()
-                  setSnackBarMessage('スタイルを前回保存時に戻しました')
-                  setSnackBarOpen(true)
+                  setAlertState({
+                    open: true,
+                    anchorOrigin: {
+                      vertical: 'top',
+                      horizontal: 'center',
+                    },
+                    severity: 'success',
+                    autoHideDuration: 2000,
+                    message: 'スタイルを前回保存時に戻しました',
+                  })
                 }}
               >
                 <ListItemText primary="スタイルを前回保存時に戻す" />
@@ -101,8 +116,16 @@ const Header: VFC<Props> = ({
                 button
                 onClick={() => {
                   handleMenuSaveStyle()
-                  setSnackBarMessage('スタイルを保存しました')
-                  setSnackBarOpen(true)
+                  setAlertState({
+                    open: true,
+                    anchorOrigin: {
+                      vertical: 'top',
+                      horizontal: 'center',
+                    },
+                    severity: 'success',
+                    autoHideDuration: 2000,
+                    message: 'スタイルを保存しました',
+                  })
                 }}
               >
                 <ListItemText primary="スタイルの保存" />
@@ -112,8 +135,16 @@ const Header: VFC<Props> = ({
                 button
                 onClick={() => {
                   handleMenuInitStyle()
-                  setSnackBarMessage('スタイルを初期化しました')
-                  setSnackBarOpen(true)
+                  setAlertState({
+                    open: true,
+                    anchorOrigin: {
+                      vertical: 'top',
+                      horizontal: 'center',
+                    },
+                    severity: 'success',
+                    autoHideDuration: 2000,
+                    message: 'スタイルを初期化しました',
+                  })
                 }}
               >
                 <ListItemText primary="スタイルの初期化" />
@@ -123,10 +154,16 @@ const Header: VFC<Props> = ({
                 button
                 onClick={() => {
                   handleMenuSaveTL()
-                  setSnackBarMessage(
-                    'TLを保存し、URLをクリップボードにコピーしました'
-                  )
-                  setSnackBarOpen(true)
+                  setAlertState({
+                    open: true,
+                    anchorOrigin: {
+                      vertical: 'top',
+                      horizontal: 'center',
+                    },
+                    severity: 'success',
+                    autoHideDuration: 2000,
+                    message: 'TLを保存し、URLをクリップボードにコピーしました',
+                  })
                 }}
               >
                 <ListItemText primary="TLの保存/URL出力" />
@@ -150,8 +187,16 @@ const Header: VFC<Props> = ({
             title={process.env.siteUrl + url}
             onClick={() => {
               navigator.clipboard.writeText(process.env.siteUrl + url)
-              setSnackBarOpen(true)
-              setSnackBarMessage('URLをクリップボードにコピーしました')
+              setAlertState({
+                open: true,
+                anchorOrigin: {
+                  vertical: 'top',
+                  horizontal: 'center',
+                },
+                severity: 'success',
+                autoHideDuration: 2000,
+                message: 'URLをクリップボードにコピーしました',
+              })
             }}
           >
             <span className="truncate">{'/' + url}</span>
@@ -169,16 +214,6 @@ const Header: VFC<Props> = ({
           </button>
         </div>
       )}
-      <Snackbar
-        anchorOrigin={{
-          vertical: 'top',
-          horizontal: 'center',
-        }}
-        onClose={() => setSnackBarOpen(false)}
-        open={snackBarOpen}
-        autoHideDuration={1500}
-        message={snackBarMessage}
-      />
     </header>
   )
 }
