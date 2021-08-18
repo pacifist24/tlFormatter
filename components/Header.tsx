@@ -2,17 +2,32 @@ import { VFC } from 'react'
 import Snackbar from '@material-ui/core/Snackbar'
 import { useState } from 'react'
 import Button from '@material-ui/core/Button'
-import Menu from '@material-ui/core/Menu'
-import MenuItem from '@material-ui/core/MenuItem'
-import Fade from '@material-ui/core/Fade'
+import { makeStyles } from '@material-ui/core/styles'
+import clsx from 'clsx'
+import Drawer from '@material-ui/core/Drawer'
+import List from '@material-ui/core/List'
+import Divider from '@material-ui/core/Divider'
+import ListItem from '@material-ui/core/ListItem'
+import ListItemText from '@material-ui/core/ListItemText'
+
 type Props = {
+  handleMenuLoadStyle: () => void
   handleMenuSaveStyle: () => void
   handleMenuInitStyle: () => void
   handleMenuSaveTL: () => Promise<void>
   url: string
 }
-
+const useStyles = makeStyles({
+  list: {
+    width: 250,
+  },
+  fullList: {
+    width: 'auto',
+  },
+})
+type Anchor = 'left'
 const Header: VFC<Props> = ({
+  handleMenuLoadStyle,
   handleMenuSaveStyle,
   handleMenuInitStyle,
   handleMenuSaveTL,
@@ -21,75 +36,106 @@ const Header: VFC<Props> = ({
   const [snackBarOpen, setSnackBarOpen] = useState(false)
   const [snackBarMessage, setSnackBarMessage] = useState('')
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-  const open = Boolean(anchorEl)
-  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
+  const classes = useStyles()
+  const [state, setState] = useState({
+    left: false,
+  })
+
+  const toggleDrawer =
+    (anchor: Anchor, open: boolean) =>
+    (event: React.KeyboardEvent | React.MouseEvent) => {
+      if (
+        event.type === 'keydown' &&
+        ((event as React.KeyboardEvent).key === 'Tab' ||
+          (event as React.KeyboardEvent).key === 'Shift')
+      ) {
+        return
+      }
+
+      setState({ ...state, [anchor]: open })
+    }
 
   return (
     <header className="relative top-0 left-0 z-10 flex items-center flex-none h-16 py-3 pl-5 space-x-4">
-      <Button
-        aria-controls="fade-menu"
-        aria-haspopup="true"
-        onClick={handleClick}
-      >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          className="w-6 h-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+      <div>
+        <Button onClick={toggleDrawer('left', true)}>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            className="w-6 h-6"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 6h16M4 12h16M4 18h16"
+            />
+          </svg>
+        </Button>
+        <Drawer
+          anchor={'left'}
+          open={state['left']}
+          onClose={toggleDrawer('left', false)}
         >
-          <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            strokeWidth={2}
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
-      </Button>
-      <Menu
-        id="fade-menu"
-        anchorEl={anchorEl}
-        keepMounted
-        open={open}
-        onClose={() => setAnchorEl(null)}
-        TransitionComponent={Fade}
-      >
-        <MenuItem
-          onClick={() => {
-            handleMenuSaveStyle()
-            setSnackBarMessage('スタイルを保存しました')
-            setSnackBarOpen(true)
-            setAnchorEl(null)
-          }}
-        >
-          スタイルの保存
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleMenuInitStyle()
-            setSnackBarMessage('スタイルを初期化しました')
-            setSnackBarOpen(true)
-            setAnchorEl(null)
-          }}
-        >
-          スタイルの初期化
-        </MenuItem>
-        <MenuItem
-          onClick={() => {
-            handleMenuSaveTL()
-            setSnackBarMessage(
-              'TLを保存し、URLをクリップボードにコピーしました'
-            )
-            setSnackBarOpen(true)
-            setAnchorEl(null)
-          }}
-        >
-          TLの保存/URL出力
-        </MenuItem>
-      </Menu>
+          <div
+            className={clsx(classes.list)}
+            role="presentation"
+            onClick={toggleDrawer('left', false)}
+            onKeyDown={toggleDrawer('left', false)}
+          >
+            <List>
+              <ListItem
+                button
+                onClick={() => {
+                  handleMenuLoadStyle()
+                  setSnackBarMessage('スタイルを前回保存時に戻しました')
+                  setSnackBarOpen(true)
+                }}
+              >
+                <ListItemText primary="スタイルを前回保存時に戻す" />
+              </ListItem>
+
+              <ListItem
+                button
+                onClick={() => {
+                  handleMenuSaveStyle()
+                  setSnackBarMessage('スタイルを保存しました')
+                  setSnackBarOpen(true)
+                }}
+              >
+                <ListItemText primary="スタイルの保存" />
+              </ListItem>
+
+              <ListItem
+                button
+                onClick={() => {
+                  handleMenuInitStyle()
+                  setSnackBarMessage('スタイルを初期化しました')
+                  setSnackBarOpen(true)
+                }}
+              >
+                <ListItemText primary="スタイルの初期化" />
+              </ListItem>
+              <Divider />
+              <ListItem
+                button
+                onClick={() => {
+                  handleMenuSaveTL()
+                  setSnackBarMessage(
+                    'TLを保存し、URLをクリップボードにコピーしました'
+                  )
+                  setSnackBarOpen(true)
+                }}
+              >
+                <ListItemText primary="TLの保存/URL出力" />
+              </ListItem>
+            </List>
+          </div>
+        </Drawer>
+      </div>
+
       <div className="flex-initial font-mono text-2xl font-bold">
         TL
         <span className="ml-1 text-lg italic tracking-tight text-turquoise-500">
@@ -105,6 +151,7 @@ const Header: VFC<Props> = ({
             onClick={() => {
               navigator.clipboard.writeText(process.env.siteUrl + url)
               setSnackBarOpen(true)
+              setSnackBarMessage('URLをクリップボードにコピーしました')
             }}
           >
             <span className="truncate">{'/' + url}</span>

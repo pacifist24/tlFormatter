@@ -4,7 +4,7 @@ import SplitPane from 'react-split-pane'
 import Header from './Header'
 import CharacterNameConverterTab from './CharacterNameConverterTab'
 import FormatTab from './FormatTab'
-import ConfigTab from './Config'
+import ConfigTab from './ConfigTab'
 import { formatTL } from '../lib/tlFormatter'
 import { DEFAULT_FORMAT } from '../lib/formatConstants'
 import { isMobile } from 'react-device-detect'
@@ -12,16 +12,17 @@ import TLOutputTab from './TLOutputTab'
 import { parseTlData, TLData, FormatStyle } from '../lib/tlFormatter'
 import TLInputTab from './TLInputTab'
 import { genIdForHash, storeFormatStyle } from '../lib/fireStoreForShare'
-// Material-UIが壊れるのでSSRできない
-// const TLInputTab = dynamic(() => import('./TLInputTab'), { ssr: false })
+import FavsTab from './FavsTab'
+import { FavsInfo } from './FavsTab'
+import { fetchFormatStyle } from '../lib/fireStoreForShare'
+
 const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   stringfiedFormatStyleObj,
   paramId,
 }) => {
   const [activeTab, setActiveTab] = useState<
-    'tl' | 'format' | 'name' | 'config' | 'output'
+    'tl' | 'format' | 'name' | 'config' | 'output' | 'favs'
   >('tl')
-  // const [tl, setTl] = useState('')
 
   const [mode, setMode] = useState('')
   const [phase, setPhase] = useState(1)
@@ -72,6 +73,44 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   const [namePadding, setNamePadding] = useState('none')
   const [arrangeConfig, setArrangeConfig] = useState('none')
 
+  const [currentPageTLData, setCurrentPageTLData] = useState<TLData>()
+  const [favsInfos, setFavsInfos] = useState<{ [key: string]: FavsInfo }>({})
+  const handleAddFavsInfo = () => {
+    if (
+      currentPageTLData.bossName &&
+      currentPageTLData.characters &&
+      currentPageTLData.damage &&
+      currentPageTLData.phase
+    ) {
+      const clone = { ...favsInfos }
+      delete clone[shareURL]
+      const addedfavsInfo: { [key: string]: FavsInfo } = {
+        [shareURL]: {
+          bossName: currentPageTLData.bossName,
+          characters: currentPageTLData.characters,
+          damage: currentPageTLData.damage,
+          phase: currentPageTLData.phase,
+          duration: currentPageTLData.startTime - currentPageTLData.endTime,
+        },
+      }
+      setFavsInfos({ ...addedfavsInfo, ...clone })
+      localStorage.setItem(
+        'stringfiedFavsInfosObj' + process.env.version,
+        JSON.stringify({ ...addedfavsInfo, ...clone })
+      )
+    }
+  }
+
+  const handleDeleteFavInfo = (id: string) => () => {
+    const clone = { ...favsInfos }
+    delete clone[id]
+    setFavsInfos(clone)
+    localStorage.setItem(
+      'stringfiedFavsInfosObj' + process.env.version,
+      JSON.stringify(clone)
+    )
+  }
+
   const handleSaveLocal = () => {
     const saveStyleObj: FormatStyle = {
       headerFormat,
@@ -87,6 +126,43 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       'stringfiedFormatStyleObj' + process.env.version,
       JSON.stringify(saveStyleObj)
     )
+  }
+  const handleFetchTL = (id: string) => async () => {
+    if (shareURL !== id) {
+      const tlData = await fetchFormatStyle(id)
+      if (tlData) {
+        setMode(tlData.mode)
+        setPhase(tlData.phase)
+        setBossName(tlData.bossName)
+        setDamage(tlData.damage)
+        setBattleDate(tlData.battleDate)
+        setStartTime(tlData.startTime)
+        setEndTime(tlData.endTime)
+        setCharacters(tlData.characters)
+        setTimeline(tlData.timeline)
+        setShareURL(id)
+        setCurrentPageTLData(tlData)
+      }
+    }
+  }
+
+  const loadStyle = () => {
+    if (
+      // ローカルストレージにスタイルの設定があれば設定
+      localStorage.getItem('stringfiedFormatStyleObj' + process.env.version)
+    ) {
+      const localFormatStyle = JSON.parse(
+        localStorage.getItem('stringfiedFormatStyleObj' + process.env.version)
+      ) as FormatStyle
+      setHeaderFormat(localFormatStyle.headerFormat)
+      setSelfUbFormat(localFormatStyle.selfUbFormat)
+      setBossUbFormat(localFormatStyle.bossUbFormat)
+      setFooterFormat(localFormatStyle.footerFormat)
+      setCharacterNameConvs(localFormatStyle.nameConvs)
+      setStartTimeConfig(localFormatStyle.startTime)
+      setNamePadding(localFormatStyle.paddingName)
+      setArrangeConfig(localFormatStyle.arrange)
+    }
   }
 
   const [shareURL, setShareURL] = useState('')
@@ -174,6 +250,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     setCharacterNameConvs(DEFAULT_FORMAT.nameConvs)
     setStartTimeConfig(DEFAULT_FORMAT.startTime)
     setNamePadding(DEFAULT_FORMAT.paddingName)
+    setArrangeConfig(DEFAULT_FORMAT.arrange)
 
     const saveStyleObj: FormatStyle = {
       headerFormat: DEFAULT_FORMAT.headerFormat,
@@ -206,22 +283,31 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       setEndTime(tlDataObj.endTime)
       setTimeline(tlDataObj.timeline)
       setShareURL(paramId)
+      setCurrentPageTLData(tlDataObj)
+    }
+
+    if (localStorage.getItem('stringfiedFavsInfosObj' + process.env.version)) {
+      const favsInfosObj = JSON.parse(
+        localStorage.getItem('stringfiedFavsInfosObj' + process.env.version)
+      ) as { [key: string]: FavsInfo }
+      setFavsInfos(favsInfosObj)
+    } else {
+      // デモ用
+      const favsInfosObj = JSON.parse(
+        '{"881c352130":{"bossName":"オルレオン","characters":[{"lv":202,"name":"コッコロ（プリンセス）","star":3,"rank":20,"specialLv":0,"remark":"裸"},{"lv":202,"name":"ネネカ","star":3,"rank":21,"specialLv":0,"remark":"鎧無し"},{"lv":202,"name":"キャル（ニューイヤー）","star":3,"rank":21,"specialLv":210,"remark":"フル装備"},{"lv":202,"name":"カスミ","star":3,"rank":20,"specialLv":30,"remark":"フル装備"},{"lv":202,"name":"マホ","star":6,"rank":20,"specialLv":1,"remark":"裸"}],"damage":22000000,"phase":3,"duration":64},"e43a2a365c":{"bossName":"ワイルドグリフォン","characters":[{"rank":20,"specialLv":1,"name":"アカリ","lv":205,"remark":"裸","star":6},{"specialLv":1,"star":5,"remark":"裸","name":"サレン（サマー）","lv":205,"rank":21},{"specialLv":0,"remark":"","rank":21,"lv":205,"star":5,"name":"ネネカ"},{"remark":"フル装備","lv":205,"star":4,"specialLv":210,"name":"キャル（ニューイヤー）","rank":21},{"lv":205,"rank":21,"remark":"フル装備","name":"ルナ","specialLv":210,"star":3}],"damage":29400200,"phase":5,"duration":90},"54fec13a97":{"bossName":"カルキノス","characters":[{"name":"コッコロ（プリンセス）","specialLv":0,"remark":"腕輪のみ","rank":14,"lv":202,"star":5},{"remark":"鎧無し","lv":202,"name":"ネネカ","rank":20,"specialLv":0,"star":5},{"name":"キャル（ニューイヤー）","star":5,"rank":21,"specialLv":210,"remark":"最強","lv":202},{"name":"マホ","star":6,"remark":"最脆","rank":12,"lv":202,"specialLv":1},{"name":"キョウカ","lv":202,"rank":21,"specialLv":210,"star":6,"remark":"最強"}],"damage":24676190,"phase":5,"duration":90}}'
+      ) as { [key: string]: FavsInfo }
+      localStorage.setItem(
+        JSON.stringify(favsInfosObj),
+        'stringfiedFavsInfosObj' + process.env.version
+      )
+      setFavsInfos(favsInfosObj)
     }
 
     if (
       // ローカルストレージにスタイルの設定があれば設定
       localStorage.getItem('stringfiedFormatStyleObj' + process.env.version)
     ) {
-      const localFormatStyle = JSON.parse(
-        localStorage.getItem('stringfiedFormatStyleObj' + process.env.version)
-      ) as FormatStyle
-      setHeaderFormat(localFormatStyle.headerFormat)
-      setSelfUbFormat(localFormatStyle.selfUbFormat)
-      setBossUbFormat(localFormatStyle.bossUbFormat)
-      setFooterFormat(localFormatStyle.footerFormat)
-      setCharacterNameConvs(localFormatStyle.nameConvs)
-      setStartTimeConfig(localFormatStyle.startTime)
-      setNamePadding(localFormatStyle.paddingName)
+      loadStyle()
     } else {
       // 初回来場者にはdefault値を設定
       setDefault()
@@ -232,7 +318,9 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     <>
       <TabBar
         activeTab={activeTab}
-        onChange={(tabName: 'tl' | 'format' | 'name' | 'config' | 'output') => {
+        onChange={(
+          tabName: 'tl' | 'format' | 'name' | 'config' | 'output' | 'favs'
+        ) => {
           setActiveTab(tabName)
         }}
       />
@@ -287,6 +375,16 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           handleChangeArrange={setArrangeConfig}
         />
       )}
+      {activeTab === 'favs' && (
+        <FavsTab
+          shareURL={shareURL}
+          handleAddFavs={handleAddFavsInfo}
+          favsInfos={favsInfos}
+          nameConvs={characterNameConvs}
+          handleDeleteFavInfo={handleDeleteFavInfo}
+          handleFetchTL={handleFetchTL}
+        />
+      )}
     </>
   )
 
@@ -303,7 +401,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       timeline,
     })
     if (id !== shareURL) {
-      storeFormatStyle({
+      const tlDataObj: TLData = {
         mode,
         phase,
         damage,
@@ -313,8 +411,10 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
         startTime,
         endTime,
         timeline,
-      })
+      }
+      storeFormatStyle(tlDataObj)
       setShareURL(id)
+      setCurrentPageTLData(tlDataObj)
     }
     navigator.clipboard.writeText(process.env.siteUrl + id)
   }
@@ -322,6 +422,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
   return (
     <>
       <Header
+        handleMenuLoadStyle={loadStyle}
         handleMenuSaveStyle={handleSaveLocal}
         handleMenuInitStyle={setDefault}
         handleMenuSaveTL={handleMenuSaveTL}

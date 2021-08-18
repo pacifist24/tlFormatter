@@ -264,7 +264,7 @@ module.exports = {
       },
     },
     boxShadow: {
-      outline: '0 0 0 3px rgba(118, 228, 236, 0.35)',
+      outline: '0 0 0 3px rgba(0, 0, 0, 0.15)',
     },
   },
   variants: {

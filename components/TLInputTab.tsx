@@ -132,9 +132,14 @@ const TLInputTab: VFC<{
                       className="w-20 pl-2 ml-2"
                       value={character.specialLv}
                       onChange={(e) => {
-                        const clone = characters.slice()
-                        clone[index].specialLv = parseInt(e.target.value)
-                        setCharacters(clone)
+                        if (
+                          !isNaN(parseInt(e.target.value)) &&
+                          Number.isInteger(parseInt(e.target.value))
+                        ) {
+                          const clone = characters.slice()
+                          clone[index].specialLv = parseInt(e.target.value)
+                          setCharacters(clone)
+                        }
                       }}
                     />
                   </div>

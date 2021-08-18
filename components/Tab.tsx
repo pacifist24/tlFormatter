@@ -3,7 +3,7 @@ import { FC, VFC } from 'react'
 import { isMobile } from 'react-device-detect'
 
 const TabBar: VFC<{
-  activeTab: 'tl' | 'format' | 'name' | 'config' | 'usage' | 'output'
+  activeTab: 'tl' | 'format' | 'name' | 'config' | 'usage' | 'output' | 'favs'
   onChange: (param: string) => void
 }> = ({ activeTab, onChange }) => (
   <div className="flex pl-5 pr-4 border-b space-x-5">
@@ -24,6 +24,9 @@ const TabBar: VFC<{
       onClick={() => onChange('config')}
     >
       Config
+    </TabButton>
+    <TabButton isActive={activeTab === 'favs'} onClick={() => onChange('favs')}>
+      Favs
     </TabButton>
     {isMobile && (
       <TabButton
