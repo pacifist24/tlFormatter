@@ -31,10 +31,10 @@ const FavsCard: VFC<{
   id: string
 }> = ({ favsInfo, nameConvs, handleDeleteFavInfo, handleFetchTL, id }) => {
   return (
-    <div className="flex-col m-2">
+    <div className="flex-col m-2 group">
       <div className="flex justify-end">
         <button
-          className="text-gray-600 rounded-full hover:bg-gray-300 transition-colors duration-150"
+          className="text-white rounded-full group-hover:text-gray-600 hover:bg-gray-300 transition-colors duration-150"
           onClick={(e) => {
             handleDeleteFavInfo()
             e.currentTarget.blur()

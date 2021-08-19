@@ -1,12 +1,18 @@
 import { VFC } from 'react'
-import Snackbar from '@material-ui/core/Snackbar'
-import { useState } from 'react'
 
 const TLOutputTab: VFC<{
   tl: string
-}> = ({ tl }) => {
-  const [snackBarOpen, setSnackBarOpen] = useState(false)
-
+  setAlertState: (alertState: {
+    open: boolean
+    anchorOrigin: {
+      vertical: 'bottom' | 'top'
+      horizontal: 'center' | 'left' | 'right'
+    }
+    severity: 'error' | 'info' | 'success' | 'warning'
+    autoHideDuration: number
+    message: string
+  }) => void
+}> = ({ tl, setAlertState }) => {
   return (
     <>
       <main className="flex flex-col h-full border-t border-l border-gray-200">
@@ -14,7 +20,16 @@ const TLOutputTab: VFC<{
           className="h-screen"
           onClick={() => {
             navigator.clipboard.writeText(tl)
-            setSnackBarOpen(true)
+            setAlertState({
+              open: true,
+              anchorOrigin: {
+                vertical: 'top',
+                horizontal: 'center',
+              },
+              severity: 'success',
+              autoHideDuration: 2000,
+              message: '出力TLをコピーしました',
+            })
           }}
           title="出力TLをコピー"
         >
@@ -24,16 +39,6 @@ const TLOutputTab: VFC<{
             readOnly
           />
         </button>
-        <Snackbar
-          anchorOrigin={{
-            vertical: 'top',
-            horizontal: 'right',
-          }}
-          onClose={() => setSnackBarOpen(false)}
-          open={snackBarOpen}
-          autoHideDuration={1000}
-          message="出力TLをコピーしました"
-        />
       </main>
     </>
   )

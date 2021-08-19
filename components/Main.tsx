@@ -14,7 +14,12 @@ import TLInputTab from './TLInputTab'
 import { genIdForHash, storeFormatStyle } from '../lib/fireStoreForShare'
 import FavsTab from './FavsTab'
 import { FavsInfo } from './FavsTab'
-import { fetchFormatStyle } from '../lib/fireStoreForShare'
+import {
+  fetchFormatStyle,
+  genIdForFavsInfo,
+  storeFavs,
+  fetchFavs,
+} from '../lib/fireStoreForShare'
 import CustomizedSnackbars from './CustomizedSnackbars'
 
 const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
@@ -186,6 +191,84 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       setStartTimeConfig(localFormatStyle.startTime)
       setNamePadding(localFormatStyle.paddingName)
       setArrangeConfig(localFormatStyle.arrange)
+    }
+  }
+  // firebaseにFavsを保存しにいく処理
+  const handleStoreFavs = () => {
+    if (Object.keys(favsInfos).length === 0) {
+      // そもそもFavsに何も登録されていない
+      setAlertState({
+        open: true,
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'center',
+        },
+        severity: 'warning',
+        autoHideDuration: 2000,
+        message: 'Favsに何も登録されていません',
+      })
+    } else {
+      storeFavs(favsInfos)
+      genIdForFavsInfo(favsInfos).then((id: string) => {
+        navigator.clipboard.writeText(id)
+        setAlertState({
+          open: true,
+          anchorOrigin: {
+            vertical: 'top',
+            horizontal: 'center',
+          },
+          severity: 'success',
+          autoHideDuration: 2000,
+          message:
+            'Favsをエクスポートし、共有コードをクリップボードにコピーしました',
+        })
+      })
+    }
+  }
+
+  const handleFetchFavs = (id: string) => {
+    if (id) {
+      fetchFavs(id).then((result) => {
+        if (result) {
+          setFavsInfos({ ...favsInfos, ...result })
+          localStorage.setItem(
+            JSON.stringify({ ...favsInfos, ...result }),
+            'stringfiedFavsInfosObj' + process.env.version
+          )
+          setAlertState({
+            open: true,
+            anchorOrigin: {
+              vertical: 'top',
+              horizontal: 'center',
+            },
+            severity: 'success',
+            autoHideDuration: 2000,
+            message: 'Favsのインポートに成功しました',
+          })
+        } else {
+          setAlertState({
+            open: true,
+            anchorOrigin: {
+              vertical: 'top',
+              horizontal: 'center',
+            },
+            severity: 'error',
+            autoHideDuration: 10000,
+            message: 'この共有コードは存在しません',
+          })
+        }
+      })
+    } else {
+      setAlertState({
+        open: true,
+        anchorOrigin: {
+          vertical: 'top',
+          horizontal: 'center',
+        },
+        severity: 'error',
+        autoHideDuration: 10000,
+        message: 'この共有コードは存在しません',
+      })
     }
   }
 
@@ -480,12 +563,16 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
         handleMenuInitStyle={setDefault}
         handleMenuSaveTL={handleMenuSaveTL}
         setAlertState={setAlertState}
+        handleStoreFavs={handleStoreFavs}
+        handleFetchFavs={handleFetchFavs}
         url={shareURL}
       />
       {isMobile && (
         <main className="flex flex-col h-full border-t border-gray-200">
           {commonTabs}
-          {activeTab === 'output' && <TLOutputTab tl={formattedTL} />}
+          {activeTab === 'output' && (
+            <TLOutputTab tl={formattedTL} setAlertState={setAlertState} />
+          )}
         </main>
       )}
       {!isMobile && (
@@ -497,7 +584,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           <main className="flex flex-col h-full border-t border-gray-200">
             {commonTabs}
           </main>
-          <TLOutputTab tl={formattedTL} />
+          <TLOutputTab tl={formattedTL} setAlertState={setAlertState} />
         </SplitPane>
       )}
       <CustomizedSnackbars

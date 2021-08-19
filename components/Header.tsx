@@ -9,11 +9,20 @@ import Divider from '@material-ui/core/Divider'
 import ListItem from '@material-ui/core/ListItem'
 import ListItemText from '@material-ui/core/ListItemText'
 
+import TextField from '@material-ui/core/TextField'
+import Dialog from '@material-ui/core/Dialog'
+import DialogActions from '@material-ui/core/DialogActions'
+import DialogContent from '@material-ui/core/DialogContent'
+import DialogContentText from '@material-ui/core/DialogContentText'
+import DialogTitle from '@material-ui/core/DialogTitle'
+
 type Props = {
   handleMenuLoadStyle: () => void
   handleMenuSaveStyle: () => void
   handleMenuInitStyle: () => void
   handleMenuSaveTL: () => Promise<void>
+  handleStoreFavs: () => void
+  handleFetchFavs: (id: string) => void
   setAlertState: (alertState: {
     open: boolean
     anchorOrigin: {
@@ -40,6 +49,8 @@ const Header: VFC<Props> = ({
   handleMenuSaveStyle,
   handleMenuInitStyle,
   handleMenuSaveTL,
+  handleStoreFavs,
+  handleFetchFavs,
   setAlertState,
   url,
 }) => {
@@ -62,8 +73,58 @@ const Header: VFC<Props> = ({
       setState({ ...state, [anchor]: open })
     }
 
+  const [importFavsDialogOpen, setImportFavsDialogOpen] = useState(false)
+  const [importCode, setImportCode] = useState('')
+
   return (
     <header className="relative top-0 left-0 z-10 flex items-center flex-none h-16 py-3 pl-5 space-x-4">
+      <div>
+        <Dialog
+          open={importFavsDialogOpen}
+          onClose={() => {
+            setImportCode('')
+            setImportFavsDialogOpen(false)
+          }}
+          aria-labelledby="form-dialog-title"
+        >
+          <DialogTitle id="form-dialog-title">Favsのエクスポート</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Favsのエクスポートで出力された共有コードを入力してください
+            </DialogContentText>
+            <TextField
+              autoFocus
+              margin="dense"
+              id="name"
+              label="共有コード"
+              value={importCode}
+              onChange={(e) => setImportCode(e.target.value)}
+              fullWidth
+            />
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => {
+                setImportCode('')
+                setImportFavsDialogOpen(false)
+              }}
+              color="primary"
+            >
+              キャンセル
+            </Button>
+            <Button
+              onClick={() => {
+                handleFetchFavs(importCode)
+                setImportCode('')
+                setImportFavsDialogOpen(false)
+              }}
+              color="primary"
+            >
+              インポート
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
       <div>
         <Button onClick={toggleDrawer('left', true)}>
           <svg
@@ -124,12 +185,51 @@ const Header: VFC<Props> = ({
                     },
                     severity: 'success',
                     autoHideDuration: 2000,
-                    message: 'スタイルを保存しました',
+                    message: 'ローカルにスタイルを保存しました',
                   })
                 }}
               >
-                <ListItemText primary="スタイルの保存" />
+                <ListItemText primary="スタイルの保存(ローカル)" />
               </ListItem>
+
+              {/* <ListItem
+                button
+                onClick={() => {
+                  handleMenuSaveStyle()
+                  setAlertState({
+                    open: true,
+                    anchorOrigin: {
+                      vertical: 'top',
+                      horizontal: 'center',
+                    },
+                    severity: 'success',
+                    autoHideDuration: 3000,
+                    message:
+                      'スタイルをエクスポートし、インポート用のコードをクリップボードにコピーしました',
+                  })
+                }}
+              >
+                <ListItemText primary="スタイルのエクスポート" />
+              </ListItem>
+
+              <ListItem
+                button
+                onClick={() => {
+                  handleMenuInitStyle()
+                  setAlertState({
+                    open: true,
+                    anchorOrigin: {
+                      vertical: 'top',
+                      horizontal: 'center',
+                    },
+                    severity: 'success',
+                    autoHideDuration: 2000,
+                    message: 'スタイルをインポートしました',
+                  })
+                }}
+              >
+                <ListItemText primary="スタイルのインポート" />
+              </ListItem> */}
 
               <ListItem
                 button
@@ -149,7 +249,9 @@ const Header: VFC<Props> = ({
               >
                 <ListItemText primary="スタイルの初期化" />
               </ListItem>
+
               <Divider />
+
               <ListItem
                 button
                 onClick={() => {
@@ -167,6 +269,26 @@ const Header: VFC<Props> = ({
                 }}
               >
                 <ListItemText primary="TLの保存/URL出力" />
+              </ListItem>
+
+              <Divider />
+
+              <ListItem
+                button
+                onClick={() => {
+                  handleStoreFavs()
+                }}
+              >
+                <ListItemText primary="Favsのエクスポート" />
+              </ListItem>
+
+              <ListItem
+                button
+                onClick={() => {
+                  setImportFavsDialogOpen(true)
+                }}
+              >
+                <ListItemText primary="Favsのインポート" />
               </ListItem>
             </List>
           </div>

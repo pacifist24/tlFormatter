@@ -1,7 +1,8 @@
 import firebase from 'firebase'
 import { TLData } from './tlFormatter'
+import { FavsInfo } from '../components/FavsTab'
 const COLLECTION_NAME = 'formatStyles'
-
+const FAVS_COLLECTION_NAME = 'favs'
 if (firebase.apps.length === 0) {
   const firebaseConfig = {
     apiKey: 'AIzaSyAkQU7p1YNFPq7K-DSWCzJCUsQe9O1rLxs',
@@ -15,7 +16,7 @@ if (firebase.apps.length === 0) {
   firebase.initializeApp(firebaseConfig)
 }
 
-// オブジェクトのハッシュ化
+// TLオブジェクトのハッシュ化
 export const genIdForHash: (formatStyleObj: TLData) => Promise<string> = async (
   formatStyleObj
 ) => {
@@ -66,7 +67,7 @@ export const genIdForHash: (formatStyleObj: TLData) => Promise<string> = async (
     .substr(0, 10)
 }
 
-// フォーマットスタイルの設定をfirestoreに保存する
+// TLをfirestoreに保存する
 export const storeFormatStyle: (formatStyleObj: TLData) => void = async (
   formatStyleObj
 ) => {
@@ -75,7 +76,7 @@ export const storeFormatStyle: (formatStyleObj: TLData) => void = async (
   db.collection(COLLECTION_NAME).doc(hash).set(formatStyleObj)
 }
 
-// フォーマットスタイルの設定をfirestoreから取り出す
+// TLをfirestoreから取り出す
 export const fetchFormatStyle: (id: string) => Promise<TLData> = async (
   id: string
 ) => {
@@ -83,3 +84,72 @@ export const fetchFormatStyle: (id: string) => Promise<TLData> = async (
   const doc = await db.collection(COLLECTION_NAME).doc(id).get()
   return doc.data() as TLData
 }
+
+// FavsInfoオブジェクトのハッシュ化
+export const genIdForFavsInfo: (favsInfosObj: {
+  [key: string]: FavsInfo
+}) => Promise<string> = async (favsInfosObj) => {
+  const stringifiedObj = Object.keys(favsInfosObj)
+    .map((key) => {
+      const favsInfoObj = favsInfosObj[key]
+
+      // オブジェクトの文字列化(JSON.stringfyではオブジェクト内の順番が壊れるため失敗する)
+      const sortedCharactersStr = favsInfoObj.characters
+        .map(
+          (character) =>
+            character.lv +
+            ',' +
+            character.name +
+            ',' +
+            character.rank +
+            ',' +
+            character.remark +
+            ',' +
+            character.specialLv +
+            ',' +
+            character.star
+        )
+        .join(',')
+
+      const stringfiedObj =
+        favsInfoObj.phase +
+        '}{' +
+        favsInfoObj.bossName +
+        '}{' +
+        favsInfoObj.damage +
+        '}{' +
+        favsInfoObj.duration +
+        '}{' +
+        sortedCharactersStr
+
+      return stringfiedObj
+    })
+    .sort()
+    .join()
+
+  const uint8 = new TextEncoder().encode(stringifiedObj)
+  const digest = await crypto.subtle.digest('SHA-1', uint8)
+  return Array.from(new Uint8Array(digest))
+    .map((v) => v.toString(16).padStart(2, '0'))
+    .join('')
+    .substr(0, 10)
+    .toUpperCase()
+}
+
+// favsをfirestoreに保存する
+export const storeFavs: (favsInfosObj: { [key: string]: FavsInfo }) => void =
+  async (favsInfoObj) => {
+    const db = firebase.firestore()
+    const hash = await genIdForFavsInfo(favsInfoObj)
+    db.collection(FAVS_COLLECTION_NAME).doc(hash).set(favsInfoObj)
+  }
+
+// TLをfirestoreから取り出す
+export const fetchFavs: (id: string) => Promise<{ [key: string]: FavsInfo }> =
+  async (id: string) => {
+    const db = firebase.firestore()
+    const doc = await db.collection(FAVS_COLLECTION_NAME).doc(id).get()
+    return doc.data() as {
+      [key: string]: FavsInfo
+    }
+  }
