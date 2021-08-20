@@ -136,7 +136,7 @@ const Header: VFC<Props> = ({
                   value={mustIncludeBoss}
                   onChange={(e) => setMustIncludeBoss(e.target.value as string)}
                 >
-                  <MenuItem value="">無し</MenuItem>
+                  <MenuItem value="">(空欄)</MenuItem>
                   {Array.from(
                     new Set(Object.keys(favs).map((key) => favs[key].bossName))
                   ).map((val, index) => (
