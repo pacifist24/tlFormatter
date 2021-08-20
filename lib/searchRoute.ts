@@ -226,7 +226,8 @@ export const outputRouteTextFile = (
     calcAttackRoute(favs, bestOf, mustIncludeBoss),
     favs
   )
-  const blob = new Blob(outputText.split(''), { type: 'text/plan' })
+  const bom = new Uint8Array([0xef, 0xbb, 0xbf])
+  const blob = new Blob([bom, outputText], { type: 'text/plan' })
   const link = document.createElement('a')
   link.href = URL.createObjectURL(blob)
   link.download = 'routes.txt'

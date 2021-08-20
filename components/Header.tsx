@@ -207,7 +207,7 @@ const Header: VFC<Props> = ({
           }}
           aria-labelledby="form-dialog-title"
         >
-          <DialogTitle id="form-dialog-title">Favsのエクスポート</DialogTitle>
+          <DialogTitle id="form-dialog-title">Favsのインポート</DialogTitle>
           <DialogContent>
             <DialogContentText>
               Favsのエクスポートで出力された共有コードを入力してください
