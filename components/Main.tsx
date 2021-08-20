@@ -116,16 +116,16 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
           'stringfiedFavsInfosObj' + process.env.version,
           JSON.stringify({ ...addedfavsInfo, ...clone })
         )
-        setAlertState({
-          open: true,
-          anchorOrigin: {
-            vertical: 'top',
-            horizontal: 'center',
-          },
-          severity: 'success',
-          autoHideDuration: 2000,
-          message: 'Favsへの登録に成功しました',
-        })
+        // setAlertState({
+        //   open: true,
+        //   anchorOrigin: {
+        //     vertical: 'top',
+        //     horizontal: 'center',
+        //   },
+        //   severity: 'success',
+        //   autoHideDuration: 2000,
+        //   message: 'Favsへの登録に成功しました',
+        // })
       }
     }
   }
@@ -230,11 +230,11 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
     if (id) {
       fetchFavs(id).then((result) => {
         if (result) {
-          setFavsInfos({ ...favsInfos, ...result })
           localStorage.setItem(
-            JSON.stringify({ ...favsInfos, ...result }),
-            'stringfiedFavsInfosObj' + process.env.version
+            'stringfiedFavsInfosObj' + process.env.version,
+            JSON.stringify({ ...favsInfos, ...result })
           )
+          setFavsInfos({ ...favsInfos, ...result })
           setAlertState({
             open: true,
             anchorOrigin: {
@@ -420,14 +420,14 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
       setFavsInfos(favsInfosObj)
     } else {
       // デモ用
-      const favsInfosObj = JSON.parse(
-        '{"881c352130":{"bossName":"オルレオン","characters":[{"lv":202,"name":"コッコロ（プリンセス）","star":3,"rank":20,"specialLv":0,"remark":"裸"},{"lv":202,"name":"ネネカ","star":3,"rank":21,"specialLv":0,"remark":"鎧無し"},{"lv":202,"name":"キャル（ニューイヤー）","star":3,"rank":21,"specialLv":210,"remark":"フル装備"},{"lv":202,"name":"カスミ","star":3,"rank":20,"specialLv":30,"remark":"フル装備"},{"lv":202,"name":"マホ","star":6,"rank":20,"specialLv":1,"remark":"裸"}],"damage":22000000,"phase":3,"duration":64},"e43a2a365c":{"bossName":"ワイルドグリフォン","characters":[{"rank":20,"specialLv":1,"name":"アカリ","lv":205,"remark":"裸","star":6},{"specialLv":1,"star":5,"remark":"裸","name":"サレン（サマー）","lv":205,"rank":21},{"specialLv":0,"remark":"","rank":21,"lv":205,"star":5,"name":"ネネカ"},{"remark":"フル装備","lv":205,"star":4,"specialLv":210,"name":"キャル（ニューイヤー）","rank":21},{"lv":205,"rank":21,"remark":"フル装備","name":"ルナ","specialLv":210,"star":3}],"damage":29400200,"phase":5,"duration":90},"54fec13a97":{"bossName":"カルキノス","characters":[{"name":"コッコロ（プリンセス）","specialLv":0,"remark":"腕輪のみ","rank":14,"lv":202,"star":5},{"remark":"鎧無し","lv":202,"name":"ネネカ","rank":20,"specialLv":0,"star":5},{"name":"キャル（ニューイヤー）","star":5,"rank":21,"specialLv":210,"remark":"最強","lv":202},{"name":"マホ","star":6,"remark":"最脆","rank":12,"lv":202,"specialLv":1},{"name":"キョウカ","lv":202,"rank":21,"specialLv":210,"star":6,"remark":"最強"}],"damage":24676190,"phase":5,"duration":90}}'
-      ) as { [key: string]: FavsInfo }
-      localStorage.setItem(
-        JSON.stringify(favsInfosObj),
-        'stringfiedFavsInfosObj' + process.env.version
-      )
-      setFavsInfos(favsInfosObj)
+      // const favsInfosObj = JSON.parse(
+      //   '{"881c352130":{"bossName":"オルレオン","characters":[{"lv":202,"name":"コッコロ（プリンセス）","star":3,"rank":20,"specialLv":0,"remark":"裸"},{"lv":202,"name":"ネネカ","star":3,"rank":21,"specialLv":0,"remark":"鎧無し"},{"lv":202,"name":"キャル（ニューイヤー）","star":3,"rank":21,"specialLv":210,"remark":"フル装備"},{"lv":202,"name":"カスミ","star":3,"rank":20,"specialLv":30,"remark":"フル装備"},{"lv":202,"name":"マホ","star":6,"rank":20,"specialLv":1,"remark":"裸"}],"damage":22000000,"phase":3,"duration":64},"e43a2a365c":{"bossName":"ワイルドグリフォン","characters":[{"rank":20,"specialLv":1,"name":"アカリ","lv":205,"remark":"裸","star":6},{"specialLv":1,"star":5,"remark":"裸","name":"サレン（サマー）","lv":205,"rank":21},{"specialLv":0,"remark":"","rank":21,"lv":205,"star":5,"name":"ネネカ"},{"remark":"フル装備","lv":205,"star":4,"specialLv":210,"name":"キャル（ニューイヤー）","rank":21},{"lv":205,"rank":21,"remark":"フル装備","name":"ルナ","specialLv":210,"star":3}],"damage":29400200,"phase":5,"duration":90},"54fec13a97":{"bossName":"カルキノス","characters":[{"name":"コッコロ（プリンセス）","specialLv":0,"remark":"腕輪のみ","rank":14,"lv":202,"star":5},{"remark":"鎧無し","lv":202,"name":"ネネカ","rank":20,"specialLv":0,"star":5},{"name":"キャル（ニューイヤー）","star":5,"rank":21,"specialLv":210,"remark":"最強","lv":202},{"name":"マホ","star":6,"remark":"最脆","rank":12,"lv":202,"specialLv":1},{"name":"キョウカ","lv":202,"rank":21,"specialLv":210,"star":6,"remark":"最強"}],"damage":24676190,"phase":5,"duration":90}}'
+      // ) as { [key: string]: FavsInfo }
+      // localStorage.setItem(
+      //   JSON.stringify(favsInfosObj),
+      //   'stringfiedFavsInfosObj' + process.env.version
+      // )
+      // setFavsInfos(favsInfosObj)
     }
 
     if (
@@ -565,6 +565,7 @@ const Main: VFC<{ stringfiedFormatStyleObj: string; paramId: string }> = ({
         setAlertState={setAlertState}
         handleStoreFavs={handleStoreFavs}
         handleFetchFavs={handleFetchFavs}
+        favs={favsInfos}
         url={shareURL}
       />
       {isMobile && (

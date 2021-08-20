@@ -98,7 +98,7 @@ const FavsTab: VFC<{
 }) => {
   const classes = useStyles()
   return (
-    <main className="flex-col h-full border-t border-l">
+    <main className="flex-col h-full overflow-scroll border-t border-l">
       {shareURL && (
         <div className="flex self-center justify-center mt-8">
           <Button

@@ -1,7 +1,7 @@
 import { VFC } from 'react'
 import { useState } from 'react'
 import Button from '@material-ui/core/Button'
-import { makeStyles } from '@material-ui/core/styles'
+import { createStyles, Theme, makeStyles } from '@material-ui/core/styles'
 import clsx from 'clsx'
 import Drawer from '@material-ui/core/Drawer'
 import List from '@material-ui/core/List'
@@ -15,6 +15,14 @@ import DialogActions from '@material-ui/core/DialogActions'
 import DialogContent from '@material-ui/core/DialogContent'
 import DialogContentText from '@material-ui/core/DialogContentText'
 import DialogTitle from '@material-ui/core/DialogTitle'
+
+import { outputRouteTextFile } from '../lib/searchRoute'
+import { FavsInfo } from './FavsTab'
+
+import InputLabel from '@material-ui/core/InputLabel'
+import MenuItem from '@material-ui/core/MenuItem'
+import FormControl from '@material-ui/core/FormControl'
+import Select from '@material-ui/core/Select'
 
 type Props = {
   handleMenuLoadStyle: () => void
@@ -34,15 +42,30 @@ type Props = {
     message: string
   }) => void
   url: string
+  favs: {
+    [key: string]: FavsInfo
+  }
 }
-const useStyles = makeStyles({
-  list: {
-    width: 250,
-  },
-  fullList: {
-    width: 'auto',
-  },
-})
+
+const useStyles = makeStyles((theme: Theme) =>
+  createStyles({
+    list: {
+      width: 250,
+    },
+    fullList: {
+      width: 'auto',
+    },
+    form: {
+      display: 'flex',
+      flexDirection: 'column',
+      margin: 'auto',
+      width: 'fit-content',
+    },
+    formControl: {
+      marginTop: theme.spacing(3),
+    },
+  })
+)
 type Anchor = 'left'
 const Header: VFC<Props> = ({
   handleMenuLoadStyle,
@@ -53,6 +76,7 @@ const Header: VFC<Props> = ({
   handleFetchFavs,
   setAlertState,
   url,
+  favs,
 }) => {
   const classes = useStyles()
   const [state, setState] = useState({
@@ -76,8 +100,104 @@ const Header: VFC<Props> = ({
   const [importFavsDialogOpen, setImportFavsDialogOpen] = useState(false)
   const [importCode, setImportCode] = useState('')
 
+  const [routeSearchDialogOpen, setRouteSearcDialogOpen] = useState(false)
+  const [mustIncludeBoss, setMustIncludeBoss] = useState('')
+  const [maxSearchNum, setMaxSearchNum] = useState(10)
+
   return (
     <header className="relative top-0 left-0 z-10 flex items-center flex-none h-16 py-3 pl-5 space-x-4">
+      <div>
+        <Dialog
+          open={routeSearchDialogOpen}
+          onClose={() => {
+            setImportCode('')
+            setRouteSearcDialogOpen(false)
+          }}
+          aria-labelledby="form-dialog-title2"
+        >
+          <DialogTitle id="form-dialog-title2">
+            Favsから凸ルートを検索
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              Favsの数によってはブラウザがフリーズする非常に重い処理となります（特に持ち越し編成の登録が多い場合）、本当に実行してもよろしいですか？
+            </DialogContentText>
+            <div className={classes.form}>
+              <FormControl
+                variant="outlined"
+                margin="dense"
+                className={classes.formControl}
+              >
+                <InputLabel id="label2">凸ルートに含めたいボス</InputLabel>
+                <Select
+                  id="label2"
+                  label="凸ルートに含めたいボス"
+                  inputProps={{ 'aria-label': 'Without label' }}
+                  value={mustIncludeBoss}
+                  onChange={(e) => setMustIncludeBoss(e.target.value as string)}
+                >
+                  <MenuItem value="">無し</MenuItem>
+                  {Array.from(
+                    new Set(Object.keys(favs).map((key) => favs[key].bossName))
+                  ).map((val, index) => (
+                    <MenuItem value={val} key={index}>
+                      {val}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              <TextField
+                className={classes.formControl}
+                margin="dense"
+                label="最大出力件数"
+                variant="outlined"
+                type="number"
+                value={maxSearchNum}
+                onChange={(e) => {
+                  const setNum = parseInt(e.target.value)
+                  if (
+                    !Number.isNaN(setNum) &&
+                    0 < setNum &&
+                    Number.isInteger(setNum)
+                  ) {
+                    setMaxSearchNum(parseInt(e.target.value))
+                  }
+                }}
+              />
+            </div>
+          </DialogContent>
+          <DialogActions>
+            <Button
+              onClick={() => {
+                setRouteSearcDialogOpen(false)
+              }}
+              color="primary"
+            >
+              キャンセル
+            </Button>
+            <Button
+              onClick={() => {
+                outputRouteTextFile(favs, maxSearchNum, mustIncludeBoss)
+                setRouteSearcDialogOpen(false)
+                setAlertState({
+                  open: true,
+                  anchorOrigin: {
+                    vertical: 'top',
+                    horizontal: 'center',
+                  },
+                  severity: 'success',
+                  autoHideDuration: 2000,
+                  message: '凸ルートの出力に成功しました',
+                })
+              }}
+              color="primary"
+            >
+              OK
+            </Button>
+          </DialogActions>
+        </Dialog>
+      </div>
+
       <div>
         <Dialog
           open={importFavsDialogOpen}
@@ -125,6 +245,7 @@ const Header: VFC<Props> = ({
           </DialogActions>
         </Dialog>
       </div>
+
       <div>
         <Button onClick={toggleDrawer('left', true)}>
           <svg
@@ -289,6 +410,29 @@ const Header: VFC<Props> = ({
                 }}
               >
                 <ListItemText primary="Favsのインポート" />
+              </ListItem>
+
+              <ListItem
+                button
+                onClick={() => {
+                  if (Object.keys(favs).length < 3) {
+                    setAlertState({
+                      open: true,
+                      anchorOrigin: {
+                        vertical: 'top',
+                        horizontal: 'center',
+                      },
+                      severity: 'error',
+                      autoHideDuration: 10000,
+                      message:
+                        '凸ルートを出力するのに十分なFavsの数がありません',
+                    })
+                  } else {
+                    setRouteSearcDialogOpen(true)
+                  }
+                }}
+              >
+                <ListItemText primary="Favsから凸ルートを出力" />
               </ListItem>
             </List>
           </div>
